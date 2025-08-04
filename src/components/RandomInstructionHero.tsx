@@ -61,7 +61,7 @@ export const RandomInstructionHero = () => {
             name
           )
         `)
-        .order("random()") // Note: This might not work in all databases, might need a different approach
+        .order("random")
         .limit(1)
         .single();
 
