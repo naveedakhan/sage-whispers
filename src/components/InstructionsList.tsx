@@ -42,7 +42,7 @@ export const InstructionsList = ({
 
   // Fetch instructions
   useEffect(() => {
-    fetchInstructions(true);
+    fetchInstructions(page === 0);
   }, [searchQuery, selectedTags, selectedCategories, page]);
 
   const fetchInstructions = async (isFirstPage = false) => {
