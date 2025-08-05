@@ -4,6 +4,7 @@ import { InstructionsList } from "@/components/InstructionsList";
 import { SearchInput } from "@/components/SearchInput";
 import { FilterBar } from "@/components/FilterBar";
 import { supabase } from "@/integrations/supabase/client";
+import posterImage from "@/assets/poster.webp";
 
 interface Tag {
   id: number;
@@ -99,7 +100,7 @@ const Index = () => {
         <header className="text-center mb-12">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-4xl md:text-6xl font-bold text-primary mx-auto">
-              Daily Wisdom
+              Life's Little Instruction Engine
             </h1>
             <nav className="absolute right-4">
               <a href="/about" className="text-muted-foreground hover:text-primary transition-colors">
@@ -112,6 +113,15 @@ const Index = () => {
             Search through thousands of life instructions to find exactly what you need.
           </p>
         </header>
+
+        {/* Poster Image */}
+        <div className="flex justify-center mb-12">
+          <img 
+            src={posterImage} 
+            alt="Life's Little Instruction Engine" 
+            className="max-w-md w-full h-auto rounded-lg shadow-lg"
+          />
+        </div>
 
         {/* Random Daily Instruction */}
         <RandomInstructionHero />
