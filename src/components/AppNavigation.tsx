@@ -14,21 +14,19 @@ interface AppNavigationProps {
 
 export const AppNavigation = ({ showBackToHome = false }: AppNavigationProps) => {
   return (
-    <nav className="flex justify-between items-center w-full">
-      {showBackToHome ? (
+    <nav className="fixed top-4 inset-x-0 flex items-center px-4">
+      {showBackToHome && (
         <Link to="/">
           <Button variant="ghost" className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Button>
         </Link>
-      ) : (
-        <div></div>
       )}
-      
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="ml-auto">
             <Menu className="h-5 w-5" />
           </Button>
         </DropdownMenuTrigger>
