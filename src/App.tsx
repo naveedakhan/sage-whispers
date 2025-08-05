@@ -17,7 +17,7 @@ const queryClient = new QueryClient();
 
 const AppContent = () => {
   useScrollToTop();
-  
+
   return (
     <>
       <Routes>
@@ -26,7 +26,6 @@ const AppContent = () => {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/copyright" element={<Copyright />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
       <ScrollToTopButton />
@@ -40,18 +39,11 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollReset />
         <AppContent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
 
-function App() {
-  return (
-    <>
-      <ScrollReset />
-      {/* Your router setup */}
-    </>
-  );
-}
 export default App;
