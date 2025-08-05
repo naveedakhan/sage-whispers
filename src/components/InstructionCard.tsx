@@ -7,8 +7,8 @@ interface Instruction {
   id: number;
   text: string;
   authors: { name: string } | null;
-  instruction_tags: { tags: { id: number; name: string } }[];
-  instruction_categories: { categories: { id: number; name: string } }[];
+  instruction_tags: { tags: { id: string | number; name: string } }[];
+  instruction_categories: { categories: { id: string | number; name: string } }[];
 }
 
 interface InstructionCardProps {

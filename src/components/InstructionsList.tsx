@@ -8,8 +8,8 @@ interface Instruction {
   id: number;
   text: string;
   authors: { name: string } | null;
-  instruction_tags: { tags: { id: number; name: string } }[];
-  instruction_categories: { categories: { id: number; name: string } }[];
+  instruction_tags: { tags: { id: string | number; name: string } }[];
+  instruction_categories: { categories: { id: string | number; name: string } }[];
 }
 
 interface InstructionsListProps {
@@ -71,12 +71,16 @@ export const InstructionsList = ({
 
         if (data) {
           // Transform the data to match the expected format
-          const transformedData = data.map((item: any) => ({
+          const transformedData = data.map((item: any, index: number) => ({
             id: item.instruction_id,
             text: item.text,
             authors: null, // Authors not included in the random function yet
-            instruction_tags: item.tags?.map((tag: string) => ({ tags: { id: 0, name: tag } })) || [],
-            instruction_categories: item.categories?.map((cat: string) => ({ categories: { id: 0, name: cat } })) || []
+            instruction_tags: item.tags?.map((tag: string, tagIndex: number) => ({ 
+              tags: { id: `${item.instruction_id}-tag-${tagIndex}`, name: tag } 
+            })) || [],
+            instruction_categories: item.categories?.map((cat: string, catIndex: number) => ({ 
+              categories: { id: `${item.instruction_id}-cat-${catIndex}`, name: cat } 
+            })) || []
           }));
 
           setInstructions(transformedData);
@@ -102,12 +106,16 @@ export const InstructionsList = ({
 
         if (data) {
           // Transform the data to match the expected format
-          const transformedData = data.map((item: any) => ({
+          const transformedData = data.map((item: any, index: number) => ({
             id: item.instruction_id,
             text: item.text,
             authors: null, // Authors not included in the search function yet
-            instruction_tags: item.tags?.map((tag: string) => ({ tags: { id: 0, name: tag } })) || [],
-            instruction_categories: item.categories?.map((cat: string) => ({ categories: { id: 0, name: cat } })) || []
+            instruction_tags: item.tags?.map((tag: string, tagIndex: number) => ({ 
+              tags: { id: `${item.instruction_id}-tag-${tagIndex}`, name: tag } 
+            })) || [],
+            instruction_categories: item.categories?.map((cat: string, catIndex: number) => ({ 
+              categories: { id: `${item.instruction_id}-cat-${catIndex}`, name: cat } 
+            })) || []
           }));
 
           if (isFirstPage || page === 0) {
