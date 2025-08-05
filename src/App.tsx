@@ -11,6 +11,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Copyright from "./pages/Copyright";
 import NotFound from "./pages/NotFound";
+import ScrollReset from "@/components/ScrollReset";
 
 const queryClient = new QueryClient();
 
@@ -45,4 +46,12 @@ const App = () => (
   </QueryClientProvider>
 );
 
+function App() {
+  return (
+    <>
+      <ScrollReset />
+      {/* Your router setup */}
+    </>
+  );
+}
 export default App;
