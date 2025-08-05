@@ -10,6 +10,10 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   publicDir: "public",
+  build: {
+    outDir: "dist",
+    copyPublicDir: true,
+  },
   plugins: [
     react(),
     mode === 'development' &&
