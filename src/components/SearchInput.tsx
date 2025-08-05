@@ -112,11 +112,11 @@ export const SearchInput = ({ value, onChange, searchMode, onSearchModeChange, h
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
         <Input
           type="text"
-          placeholder={
-            searchMode === 'database' 
-              ? "Try searching for 'friendship', 'work', or 'happiness'..."
-              : "Filter current instructions..."
-          }
+           placeholder={
+             searchMode === 'database' 
+               ? "Search across instructions, authors, tags, and categories..."
+               : "Filter current instructions..."
+           }
           value={localValue}
           onChange={handleInputChange}
           className={`pl-10 pr-10 h-12 text-lg border-2 ${
@@ -150,9 +150,9 @@ export const SearchInput = ({ value, onChange, searchMode, onSearchModeChange, h
             <div className="text-xs space-y-1">
               {searchMode === 'database' ? (
                 <>
-                  <div>• Search by keywords: "happiness", "work", "family"</div>
-                  <div>• Find by topic: "relationships", "success", "wisdom"</div>
-                  <div>• Use filters below to narrow by tags and categories</div>
+                  <div>• Search instructions, authors, tags, and categories</div>
+                  <div>• Try: "happiness", author names, or tag/category names</div>
+                  <div>• Use filters below for precise tag and category matching</div>
                 </>
               ) : (
                 <>
