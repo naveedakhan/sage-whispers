@@ -97,9 +97,16 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <header className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold text-primary mb-4">
-            Life's Little Instruction Engine
-          </h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-primary">
+              Daily Wisdom
+            </h1>
+            <nav>
+              <a href="/about" className="text-muted-foreground hover:text-primary transition-colors">
+                About
+              </a>
+            </nav>
+          </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Discover timeless wisdom and practical guidance for living a fulfilling life.
             Search through thousands of life instructions to find exactly what you need.
