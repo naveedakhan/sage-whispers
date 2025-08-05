@@ -165,38 +165,56 @@ export const RandomInstructionHero = () => {
   };
 
   const addToHistory = (newInstruction: Instruction) => {
-    if (!instruction) return;
-    
     setHistory(prevHistory => {
       // Don't add if it's the same instruction
-      if (prevHistory.length > 0 && prevHistory[prevHistory.length - 1].id === instruction.id) {
+      if (prevHistory.length > 0 && prevHistory[prevHistory.length - 1].id === newInstruction.id) {
         return prevHistory;
       }
       
-      // Remove any instructions after current index (when navigating back then getting new)
-      const newHistory = currentHistoryIndex >= 0 
-        ? prevHistory.slice(0, currentHistoryIndex + 1)
-        : prevHistory;
-      
-      // Add current instruction to history
-      const updatedHistory = [...newHistory, instruction];
+      // If we're not at the end of history, truncate everything after current position
+      let updatedHistory: Instruction[];
+      if (currentHistoryIndex < prevHistory.length - 1) {
+        updatedHistory = [...prevHistory.slice(0, currentHistoryIndex + 1), newInstruction];
+      } else {
+        // If we're at the end, just add the new instruction
+        updatedHistory = [...prevHistory, newInstruction];
+      }
       
       // Limit history to 20 instructions
       if (updatedHistory.length > 20) {
-        return updatedHistory.slice(-20);
+        updatedHistory = updatedHistory.slice(-20);
       }
       
       return updatedHistory;
     });
     
-    setCurrentHistoryIndex(prev => prev + 1);
+    // Update index to point to the new instruction
+    setCurrentHistoryIndex(prevIndex => {
+      if (currentHistoryIndex < history.length - 1) {
+        return currentHistoryIndex + 1;
+      } else {
+        return history.length;
+      }
+    });
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     if (instruction) {
       addToHistory(instruction);
     }
-    fetchRandomInstruction(true);
+    
+    // Clear cache when manually refreshing
+    setCookie("dailyRandomId", "", -1);
+    setCookie("dailyRandomTimestamp", "", -1);
+    
+    await fetchRandomInstruction(true);
+    
+    // Update URL to reflect new instruction
+    if (instruction) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('instruction', instruction.id.toString());
+      window.history.replaceState({}, '', url.toString());
+    }
   };
 
   const handleBack = () => {
@@ -319,7 +337,7 @@ export const RandomInstructionHero = () => {
           {/* History indicator */}
           {history.length > 0 && (
             <p className="text-sm text-muted-foreground">
-              {currentHistoryIndex + 1} of {history.length + 1}
+              {currentHistoryIndex + 1} of {history.length}
             </p>
           )}
           
