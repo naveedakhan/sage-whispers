@@ -36,21 +36,39 @@ export const ShareButtons = ({ text, url }: ShareButtonsProps) => {
   };
 
   const handleTwitterShare = () => {
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-    const link = document.createElement('a');
-    link.href = twitterUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.click();
+    console.log('Twitter share clicked', { text, url });
+    try {
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+      console.log('Twitter URL:', twitterUrl);
+      const link = document.createElement('a');
+      link.href = twitterUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      console.log('Twitter share link clicked successfully');
+    } catch (error) {
+      console.error('Twitter share error:', error);
+    }
   };
 
   const handleFacebookShare = () => {
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
-    const link = document.createElement('a');
-    link.href = facebookUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.click();
+    console.log('Facebook share clicked', { text, url });
+    try {
+      const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
+      console.log('Facebook URL:', facebookUrl);
+      const link = document.createElement('a');
+      link.href = facebookUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      console.log('Facebook share link clicked successfully');
+    } catch (error) {
+      console.error('Facebook share error:', error);
+    }
   };
 
   return (
