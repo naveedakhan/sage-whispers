@@ -37,12 +37,22 @@ export const ShareButtons = ({ text, url }: ShareButtonsProps) => {
 
   const handleTwitterShare = () => {
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-    window.open(twitterUrl, '_blank', 'noopener,noreferrer');
+    // Try window.open first, fallback to direct navigation for pop-up blockers
+    const newWindow = window.open(twitterUrl, '_blank', 'noopener,noreferrer');
+    if (!newWindow) {
+      // If pop-up was blocked, navigate in same tab
+      window.location.href = twitterUrl;
+    }
   };
 
   const handleFacebookShare = () => {
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
-    window.open(facebookUrl, '_blank', 'noopener,noreferrer');
+    // Try window.open first, fallback to direct navigation for pop-up blockers
+    const newWindow = window.open(facebookUrl, '_blank', 'noopener,noreferrer');
+    if (!newWindow) {
+      // If pop-up was blocked, navigate in same tab
+      window.location.href = facebookUrl;
+    }
   };
 
   return (

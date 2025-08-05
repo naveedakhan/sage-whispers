@@ -104,8 +104,48 @@ export const RandomInstructionHero = () => {
   };
 
   useEffect(() => {
-    fetchRandomInstruction();
+    // Check if there's a shared instruction ID in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const instructionId = urlParams.get('instruction');
+    
+    if (instructionId) {
+      // Load specific instruction from URL parameter
+      fetchSpecificInstruction(parseInt(instructionId));
+    } else {
+      // Load random daily instruction
+      fetchRandomInstruction();
+    }
   }, []);
+
+  const fetchSpecificInstruction = async (id: number) => {
+    try {
+      setIsLoading(true);
+      const { data } = await supabase
+        .from("instructions")
+        .select(`
+          id,
+          text,
+          authors (
+            name
+          )
+        `)
+        .eq("id", id)
+        .single();
+        
+      if (data) {
+        setInstruction(data);
+      } else {
+        // If specific instruction not found, fallback to random
+        fetchRandomInstruction();
+      }
+    } catch (error) {
+      console.error("Error fetching specific instruction:", error);
+      // Fallback to random instruction
+      fetchRandomInstruction();
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleRefresh = () => {
     fetchRandomInstruction(true);
@@ -176,7 +216,7 @@ export const RandomInstructionHero = () => {
           
           <ShareButtons 
             text={`"${instruction.text}"${instruction.authors ? ` — ${instruction.authors.name}` : ''}`}
-            url={window.location.href}
+            url={`${window.location.origin}?instruction=${instruction.id}`}
           />
         </div>
       </div>
