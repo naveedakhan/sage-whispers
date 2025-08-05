@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, X, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Search, X, AlertCircle, Database, Filter } from "lucide-react";
 import { debounce } from "@/utils/storage";
 import { sanitizeInput, validateSearchInput, searchRateLimiter, createRateLimitKey } from "@/utils/security";
 import { useToast } from "@/components/ui/use-toast";
@@ -9,9 +10,12 @@ import { useToast } from "@/components/ui/use-toast";
 interface SearchInputProps {
   value: string;
   onChange: (value: string) => void;
+  searchMode: 'database' | 'local';
+  onSearchModeChange: (mode: 'database' | 'local') => void;
+  hasLoadedInstructions: boolean;
 }
 
-export const SearchInput = ({ value, onChange }: SearchInputProps) => {
+export const SearchInput = ({ value, onChange, searchMode, onSearchModeChange, hasLoadedInstructions }: SearchInputProps) => {
   const [localValue, setLocalValue] = useState(value);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -77,11 +81,42 @@ export const SearchInput = ({ value, onChange }: SearchInputProps) => {
 
   return (
     <div className="relative max-w-2xl mx-auto">
+      <div className="flex gap-2 mb-3 justify-center">
+        <Button
+          variant={searchMode === 'database' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => onSearchModeChange('database')}
+          className="flex items-center gap-2"
+        >
+          <Database className="w-4 h-4" />
+          Search All Instructions
+        </Button>
+        <Button
+          variant={searchMode === 'local' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => onSearchModeChange('local')}
+          disabled={!hasLoadedInstructions}
+          className="flex items-center gap-2"
+        >
+          <Filter className="w-4 h-4" />
+          Filter Current Results
+          {!hasLoadedInstructions && (
+            <Badge variant="secondary" className="text-xs ml-1">
+              Load instructions first
+            </Badge>
+          )}
+        </Button>
+      </div>
+      
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
         <Input
           type="text"
-          placeholder="Try searching for 'friendship', 'work', or 'happiness'..."
+          placeholder={
+            searchMode === 'database' 
+              ? "Try searching for 'friendship', 'work', or 'happiness'..."
+              : "Filter current instructions..."
+          }
           value={localValue}
           onChange={handleInputChange}
           className={`pl-10 pr-10 h-12 text-lg border-2 ${
@@ -111,11 +146,21 @@ export const SearchInput = ({ value, onChange }: SearchInputProps) => {
       {!localValue && !error && (
         <div className="mt-3 text-sm text-muted-foreground text-center">
           <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-sm">
-            <div className="font-medium mb-1">💡 Search Tips:</div>
+            <div className="font-medium mb-1">💡 Tips:</div>
             <div className="text-xs space-y-1">
-              <div>• Search by keywords: "happiness", "work", "family"</div>
-              <div>• Find by topic: "relationships", "success", "wisdom"</div>
-              <div>• Use filters below to narrow by tags and categories</div>
+              {searchMode === 'database' ? (
+                <>
+                  <div>• Search by keywords: "happiness", "work", "family"</div>
+                  <div>• Find by topic: "relationships", "success", "wisdom"</div>
+                  <div>• Use filters below to narrow by tags and categories</div>
+                </>
+              ) : (
+                <>
+                  <div>• Filter the currently loaded instructions</div>
+                  <div>• Search for keywords within the visible results</div>
+                  <div>• Works instantly without database queries</div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -123,7 +168,7 @@ export const SearchInput = ({ value, onChange }: SearchInputProps) => {
 
       {localValue && !error && (
         <div className="mt-2 text-sm text-muted-foreground text-center">
-          Searching for: <span className="font-medium text-foreground">"{localValue}"</span>
+          {searchMode === 'database' ? 'Searching' : 'Filtering'} for: <span className="font-medium text-foreground">"{localValue}"</span>
         </div>
       )}
     </div>

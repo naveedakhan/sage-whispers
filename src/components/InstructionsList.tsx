@@ -18,6 +18,8 @@ interface InstructionsListProps {
   selectedCategories: number[];
   tags: { id: number; name: string }[];
   categories: { id: number; name: string }[];
+  searchMode: 'database' | 'local';
+  onInstructionsLoaded: (hasInstructions: boolean) => void;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -28,26 +30,53 @@ export const InstructionsList = ({
   selectedCategories,
   tags,
   categories,
+  searchMode,
+  onInstructionsLoaded,
 }: InstructionsListProps) => {
   const [instructions, setInstructions] = useState<Instruction[]>([]);
+  const [allInstructions, setAllInstructions] = useState<Instruction[]>([]); // Store all loaded instructions for local filtering
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset pagination when filters change
-  useEffect(() => {
-    setPage(0);
-    setInstructions([]);
-    setHasMore(true);
-    setError(null);
-  }, [searchQuery, selectedTags, selectedCategories]);
+  // Filter instructions locally when in local mode
+  const filterInstructionsLocally = (searchTerm: string, tagFilters: number[], categoryFilters: number[]) => {
+    if (!allInstructions.length) return [];
+    
+    return allInstructions.filter(instruction => {
+      const matchesSearch = !searchTerm || instruction.text.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesTags = tagFilters.length === 0 || 
+        instruction.instruction_tags.some(it => tagFilters.includes(Number(it.tags.id)));
+      const matchesCategories = categoryFilters.length === 0 || 
+        instruction.instruction_categories.some(ic => categoryFilters.includes(Number(ic.categories.id)));
+      
+      return matchesSearch && matchesTags && matchesCategories;
+    });
+  };
 
-  // Fetch instructions (random if no filters, search otherwise)
+  // Reset pagination when filters change or mode changes
   useEffect(() => {
-    fetchInstructions(page === 0);
-  }, [searchQuery, selectedTags, selectedCategories, page]);
+    if (searchMode === 'database') {
+      setPage(0);
+      setInstructions([]);
+      setHasMore(true);
+      setError(null);
+    } else {
+      // For local mode, filter the existing instructions
+      const filtered = filterInstructionsLocally(searchQuery, selectedTags, selectedCategories);
+      setInstructions(filtered);
+      setHasMore(false); // No pagination for local filtering
+    }
+  }, [searchQuery, selectedTags, selectedCategories, searchMode, allInstructions]);
+
+  // Fetch instructions only in database mode
+  useEffect(() => {
+    if (searchMode === 'database') {
+      fetchInstructions(page === 0);
+    }
+  }, [searchQuery, selectedTags, selectedCategories, page, searchMode]);
 
   const fetchInstructions = async (isFirstPage = false) => {
     try {
@@ -89,8 +118,11 @@ export const InstructionsList = ({
 
           if (isFirstPage || page === 0) {
             setInstructions(itemsToShow);
+            setAllInstructions(itemsToShow); // Store for local filtering
+            onInstructionsLoaded(itemsToShow.length > 0);
           } else {
             setInstructions(prev => [...prev, ...itemsToShow]);
+            setAllInstructions(prev => [...prev, ...itemsToShow]); // Append to stored instructions
           }
           
           setHasMore(hasMoreItems);
@@ -133,8 +165,11 @@ export const InstructionsList = ({
 
           if (isFirstPage || page === 0) {
             setInstructions(itemsToShow);
+            setAllInstructions(itemsToShow); // Store for local filtering
+            onInstructionsLoaded(itemsToShow.length > 0);
           } else {
             setInstructions(prev => [...prev, ...itemsToShow]);
+            setAllInstructions(prev => [...prev, ...itemsToShow]); // Append to stored instructions
           }
 
           setHasMore(hasMoreItems);
@@ -182,15 +217,20 @@ export const InstructionsList = ({
   }
 
   const hasFilters = searchQuery.trim() || selectedTags.length > 0 || selectedCategories.length > 0;
+  const isSearchMode = searchMode === 'database' && hasFilters;
+  const isLocalMode = searchMode === 'local';
 
   return (
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold mb-2">
-          {hasFilters ? "Search Results" : "All Instructions"}
+          {isSearchMode ? "Search Results" : 
+           isLocalMode ? "Filtered Results" : 
+           "All Instructions"}
         </h2>
         <p className="text-muted-foreground">
-          {instructions.length} instruction{instructions.length !== 1 ? 's' : ''} found
+          {instructions.length} instruction{instructions.length !== 1 ? 's' : ''} 
+          {isLocalMode ? ` (filtered from ${allInstructions.length} loaded)` : ' found'}
         </p>
       </div>
 
@@ -199,7 +239,7 @@ export const InstructionsList = ({
           <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">No instructions found</h3>
           <p className="text-muted-foreground mb-4">
-            {hasFilters
+            {isSearchMode || isLocalMode
               ? "Try adjusting your search terms or filters to find what you're looking for."
               : "There are no instructions available at the moment."}
           </p>
@@ -212,7 +252,7 @@ export const InstructionsList = ({
             ))}
           </div>
 
-          {hasMore && (
+          {hasMore && searchMode === 'database' && (
             <div className="text-center">
               <Button
                 onClick={loadMore}

@@ -24,6 +24,8 @@ const Index = () => {
   const [tags, setTags] = useState<Tag[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchMode, setSearchMode] = useState<'database' | 'local'>('database');
+  const [hasLoadedInstructions, setHasLoadedInstructions] = useState(false);
 
   // Load initial data and restore state from localStorage
   useEffect(() => {
@@ -127,10 +129,13 @@ const Index = () => {
 
         {/* Search and Filters */}
         <div className="mb-12 space-y-6 relative">
-          <SearchInput 
-            value={searchQuery} 
-            onChange={setSearchQuery} 
-          />
+            <SearchInput 
+              value={searchQuery} 
+              onChange={setSearchQuery}
+              searchMode={searchMode}
+              onSearchModeChange={setSearchMode}
+              hasLoadedInstructions={hasLoadedInstructions}
+            />
           
           <FilterBar
             tags={tags}
@@ -144,13 +149,15 @@ const Index = () => {
         </div>
 
         {/* Instructions List */}
-        <InstructionsList
-          searchQuery={searchQuery}
-          selectedTags={selectedTags}
-          selectedCategories={selectedCategories}
-          tags={tags}
-          categories={categories}
-        />
+            <InstructionsList
+              searchQuery={searchQuery}
+              selectedTags={selectedTags}
+              selectedCategories={selectedCategories}
+              tags={tags}
+              categories={categories}
+              searchMode={searchMode}
+              onInstructionsLoaded={setHasLoadedInstructions}
+            />
       </div>
     </div>
   );
