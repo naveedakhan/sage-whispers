@@ -1,5 +1,4 @@
 import { Menu, ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,35 +13,27 @@ interface AppNavigationProps {
 }
 
 export const AppNavigation = ({ showBackToHome = false }: AppNavigationProps) => {
-  const [scrollbarWidth, setScrollbarWidth] = useState(0);
-
-  useEffect(() => {
-    const calculateScrollbarWidth = () => {
-      const width = window.innerWidth - document.documentElement.clientWidth;
-      setScrollbarWidth(width);
-    };
-
-    calculateScrollbarWidth();
-    window.addEventListener("resize", calculateScrollbarWidth);
-    return () => window.removeEventListener("resize", calculateScrollbarWidth);
-  }, []);
-
   const handleMenuOpenChange = (open: boolean) => {
     if (open) {
-      // Prevent layout shift by accounting for scrollbar width when present
       document.body.style.overflow = "hidden";
-      if (scrollbarWidth > 0) {
-        document.body.style.paddingRight = `${scrollbarWidth}px`;
+      // Fallback for browsers without `scrollbar-gutter`
+      if (!CSS.supports?.("scrollbar-gutter: stable")) {
+        const width = window.innerWidth - document.documentElement.clientWidth;
+        if (width > 0) {
+          document.body.style.paddingRight = `${width}px`;
+        }
       }
     } else {
-      // Restore normal scrolling
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";
     }
   };
 
-  return (
-    <nav className="fixed top-4 left-4 right-4 flex items-center z-50">
+    return (
+      <nav
+        aria-label="Main navigation"
+        className="fixed top-4 left-4 right-4 flex items-center z-50"
+      >
       {showBackToHome && (
         <Link to="/">
           <Button variant="ghost" className="absolute top-0 left-0">
@@ -58,6 +49,7 @@ export const AppNavigation = ({ showBackToHome = false }: AppNavigationProps) =>
             variant="ghost"
             size="icon"
             className="ml-auto"
+            aria-label="Open menu"
           >
             <Menu className="h-5 w-5" />
           </Button>
