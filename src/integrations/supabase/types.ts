@@ -147,6 +147,33 @@ export type Database = {
           },
         ]
       }
+      security_logs: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       tags: {
         Row: {
           id: number
@@ -244,6 +271,30 @@ export type Database = {
       http_set_curlopt: {
         Args: { curlopt: string; value: string }
         Returns: boolean
+      }
+      log_security_event: {
+        Args: {
+          event_type: string
+          ip_address?: unknown
+          user_agent?: string
+          details?: Json
+        }
+        Returns: undefined
+      }
+      search_instructions_secure: {
+        Args: {
+          search_term?: string
+          tag_filters?: string[]
+          category_filters?: string[]
+          result_limit?: number
+        }
+        Returns: {
+          instruction_id: number
+          text: string
+          source_id: number
+          tags: string[]
+          categories: string[]
+        }[]
       }
       text_to_bytea: {
         Args: { data: string }

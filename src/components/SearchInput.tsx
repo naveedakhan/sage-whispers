@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, X } from "lucide-react";
+import { Search, X, AlertCircle } from "lucide-react";
 import { debounce } from "@/utils/storage";
+import { sanitizeInput, validateSearchInput, searchRateLimiter, createRateLimitKey } from "@/utils/security";
+import { useToast } from "@/components/ui/use-toast";
 
 interface SearchInputProps {
   value: string;
@@ -11,13 +13,41 @@ interface SearchInputProps {
 
 export const SearchInput = ({ value, onChange }: SearchInputProps) => {
   const [localValue, setLocalValue] = useState(value);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  // Debounced onChange function
+  // Debounced onChange function with security checks
   const debouncedOnChange = useCallback(
     debounce((searchValue: string) => {
-      onChange(searchValue);
+      // Check rate limiting
+      const rateLimitKey = createRateLimitKey();
+      if (searchRateLimiter.isRateLimited(rateLimitKey)) {
+        const remaining = searchRateLimiter.getRemainingRequests(rateLimitKey);
+        toast({
+          title: "Rate limit exceeded",
+          description: `Please wait before searching again. ${remaining} requests remaining.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate and sanitize input
+      const validation = validateSearchInput(searchValue);
+      if (!validation.isValid) {
+        setError(validation.error || "Invalid search term");
+        toast({
+          title: "Invalid search",
+          description: validation.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setError(null);
+      const sanitizedValue = sanitizeInput(searchValue);
+      onChange(sanitizedValue);
     }, 300),
-    [onChange]
+    [onChange, toast]
   );
 
   // Update local value when prop value changes
@@ -27,12 +57,21 @@ export const SearchInput = ({ value, onChange }: SearchInputProps) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
+    
+    // Basic client-side length check for immediate feedback
+    if (newValue.length > 1000) {
+      setError("Search term too long (max 1000 characters)");
+      return;
+    }
+    
+    setError(null);
     setLocalValue(newValue);
     debouncedOnChange(newValue);
   };
 
   const handleClear = () => {
     setLocalValue("");
+    setError(null);
     onChange("");
   };
 
@@ -45,7 +84,10 @@ export const SearchInput = ({ value, onChange }: SearchInputProps) => {
           placeholder="Search instructions, authors, tags, or categories..."
           value={localValue}
           onChange={handleInputChange}
-          className="pl-10 pr-10 h-12 text-lg border-2 border-primary/20 focus:border-primary/50 bg-background/50 backdrop-blur-sm"
+          className={`pl-10 pr-10 h-12 text-lg border-2 ${
+            error ? 'border-destructive' : 'border-primary/20 focus:border-primary/50'
+          } bg-background/50 backdrop-blur-sm`}
+          maxLength={1000}
         />
         {localValue && (
           <Button
@@ -59,7 +101,14 @@ export const SearchInput = ({ value, onChange }: SearchInputProps) => {
         )}
       </div>
       
-      {localValue && (
+      {error && (
+        <div className="absolute top-full mt-2 left-0 right-0 text-sm text-destructive text-center flex items-center justify-center gap-1">
+          <AlertCircle className="w-4 h-4" />
+          {error}
+        </div>
+      )}
+      
+      {localValue && !error && (
         <div className="absolute top-full mt-2 left-0 right-0 text-sm text-muted-foreground text-center">
           Searching for: <span className="font-medium text-foreground">"{localValue}"</span>
         </div>
