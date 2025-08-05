@@ -74,6 +74,11 @@ export const RandomInstructionHero = () => {
           // Cache the new instruction
           setCookie("dailyRandomId", randomData.id.toString(), 1);
           setCookie("dailyRandomTimestamp", now.toString(), 1);
+          
+          // Update URL when a new random instruction is fetched
+          const url = new URL(window.location.href);
+          url.searchParams.set('instruction', randomData.id.toString());
+          window.history.replaceState({}, '', url.toString());
         }
       }
     } catch (error) {
@@ -151,6 +156,10 @@ export const RandomInstructionHero = () => {
         
       if (data) {
         setInstruction(data);
+        
+        // Add shared instruction to history and reset index
+        setHistory([data]);
+        setCurrentHistoryIndex(0);
       } else {
         // If specific instruction not found, fallback to random
         fetchRandomInstruction();
@@ -166,7 +175,7 @@ export const RandomInstructionHero = () => {
 
   const addToHistory = (newInstruction: Instruction) => {
     setHistory(prevHistory => {
-      // Don't add if it's the same instruction
+      // Don't add if it's the same instruction as the last one
       if (prevHistory.length > 0 && prevHistory[prevHistory.length - 1].id === newInstruction.id) {
         return prevHistory;
       }
@@ -188,8 +197,9 @@ export const RandomInstructionHero = () => {
       return updatedHistory;
     });
     
-    // Update index to point to the new instruction
+    // Update index to point to the new instruction (use callback to avoid stale closure)
     setCurrentHistoryIndex(prevIndex => {
+      // Calculate new index based on current history state
       if (currentHistoryIndex < history.length - 1) {
         return currentHistoryIndex + 1;
       } else {
@@ -208,13 +218,6 @@ export const RandomInstructionHero = () => {
     setCookie("dailyRandomTimestamp", "", -1);
     
     await fetchRandomInstruction(true);
-    
-    // Update URL to reflect new instruction
-    if (instruction) {
-      const url = new URL(window.location.href);
-      url.searchParams.set('instruction', instruction.id.toString());
-      window.history.replaceState({}, '', url.toString());
-    }
   };
 
   const handleBack = () => {
