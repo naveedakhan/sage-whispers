@@ -1,17 +1,16 @@
+import { AppNavigation } from "@/components/AppNavigation";
+
 const Copyright = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="mb-8">
+          <AppNavigation showBackToHome />
+        </div>
         <header className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">
             Copyright Disclaimer
           </h1>
-          <a 
-            href="/" 
-            className="text-muted-foreground hover:text-primary transition-colors"
-          >
-            ← Back to Home
-          </a>
         </header>
 
         <div className="prose prose-lg max-w-none">

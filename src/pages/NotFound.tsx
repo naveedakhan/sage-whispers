@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { AppNavigation } from "@/components/AppNavigation";
 import { Home, Search, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -7,8 +8,13 @@ const NotFound = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <Card className="max-w-md w-full p-8 text-center bg-background/50 backdrop-blur-sm border-primary/20">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <AppNavigation showBackToHome />
+        </div>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="max-w-md w-full p-8 text-center bg-background/50 backdrop-blur-sm border-primary/20">
         <div className="space-y-6">
           {/* 404 Icon and Text */}
           <div className="space-y-4">
@@ -57,6 +63,8 @@ const NotFound = () => {
           </div>
         </div>
       </Card>
+        </div>
+      </div>
     </div>
   );
 };
