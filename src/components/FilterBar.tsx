@@ -82,7 +82,7 @@ export const FilterBar = ({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-64" align="start">
+            <PopoverContent className="w-64 z-50 bg-background border shadow-lg" align="start">
               <div className="space-y-2">
                 <h4 className="font-medium text-sm">Filter by Tags</h4>
                 <ScrollArea className="h-48">
@@ -120,7 +120,7 @@ export const FilterBar = ({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-64" align="start">
+            <PopoverContent className="w-64 z-50 bg-background border shadow-lg" align="start">
               <div className="space-y-2">
                 <h4 className="font-medium text-sm">Filter by Categories</h4>
                 <ScrollArea className="h-48">

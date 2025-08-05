@@ -126,7 +126,7 @@ const Index = () => {
         <RandomInstructionHero />
 
         {/* Search and Filters */}
-        <div className="mb-8 space-y-6">
+        <div className="mb-12 space-y-6 relative">
           <SearchInput 
             value={searchQuery} 
             onChange={setSearchQuery} 
