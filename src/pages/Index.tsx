@@ -98,16 +98,16 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <header className="text-center mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-4xl md:text-6xl font-bold text-primary mx-auto">
+        <header className="mb-12">
+          <div className="mb-6">
+            <AppNavigation />
+          </div>
+          <div className="text-center">
+            <h1 className="text-4xl md:text-6xl font-bold text-primary">
               Life's Little Instruction Engine
             </h1>
-            <div className="absolute right-4">
-              <AppNavigation />
-            </div>
           </div>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mt-4">
             Discover timeless wisdom and practical guidance for living a fulfilling life.
             Search through thousands of life instructions to find exactly what you need.
           </p>

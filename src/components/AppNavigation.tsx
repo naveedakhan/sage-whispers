@@ -14,42 +14,42 @@ interface AppNavigationProps {
 
 export const AppNavigation = ({ showBackToHome = false }: AppNavigationProps) => {
   return (
-    <nav className="flex justify-between items-center">
-      {showBackToHome && (
+    <nav className="flex justify-between items-center w-full">
+      {showBackToHome ? (
         <Link to="/">
           <Button variant="ghost" className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Button>
         </Link>
+      ) : (
+        <div></div>
       )}
       
-      <div className={showBackToHome ? "ml-auto" : ""}>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link to="/">Home</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/about">About</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/privacy">Privacy</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/terms">Terms</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/copyright">Copyright</Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem asChild>
+            <Link to="/">Home</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/about">About</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/privacy">Privacy</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/terms">Terms</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/copyright">Copyright</Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </nav>
   );
 };
