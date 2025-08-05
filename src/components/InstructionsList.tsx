@@ -62,7 +62,7 @@ export const InstructionsList = ({
       if (!hasFilters) {
         // Load random instructions when no filters are applied
         const { data, error: fetchError } = await supabase.rpc('get_random_instructions', {
-          result_limit: 20
+          result_limit: ITEMS_PER_PAGE + 1 // Get one extra to check if there are more
         });
 
         if (fetchError) {
@@ -83,8 +83,17 @@ export const InstructionsList = ({
             })) || []
           }));
 
-          setInstructions(transformedData);
-          setHasMore(false); // No pagination for random results
+          // Check if we have more items than requested
+          const hasMoreItems = transformedData.length > ITEMS_PER_PAGE;
+          const itemsToShow = hasMoreItems ? transformedData.slice(0, ITEMS_PER_PAGE) : transformedData;
+
+          if (isFirstPage || page === 0) {
+            setInstructions(itemsToShow);
+          } else {
+            setInstructions(prev => [...prev, ...itemsToShow]);
+          }
+          
+          setHasMore(hasMoreItems);
         }
       } else {
         // Use the secure search function when filters are applied
@@ -97,7 +106,7 @@ export const InstructionsList = ({
           search_term: searchQuery.trim(),
           tag_filters: tagNames,
           category_filters: categoryNames,
-          result_limit: (page + 1) * ITEMS_PER_PAGE
+          result_limit: ITEMS_PER_PAGE + 1 // Get one extra to check if there are more
         });
 
         if (fetchError) {
@@ -118,16 +127,17 @@ export const InstructionsList = ({
             })) || []
           }));
 
+          // Check if we have more items than requested
+          const hasMoreItems = transformedData.length > ITEMS_PER_PAGE;
+          const itemsToShow = hasMoreItems ? transformedData.slice(0, ITEMS_PER_PAGE) : transformedData;
+
           if (isFirstPage || page === 0) {
-            setInstructions(transformedData);
+            setInstructions(itemsToShow);
           } else {
-            // For pagination with search, we need to slice the results
-            const startIndex = page * ITEMS_PER_PAGE;
-            const newItems = transformedData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-            setInstructions(prev => [...prev, ...newItems]);
+            setInstructions(prev => [...prev, ...itemsToShow]);
           }
 
-          setHasMore(transformedData.length === (page + 1) * ITEMS_PER_PAGE);
+          setHasMore(hasMoreItems);
         }
       }
     } catch (err) {
