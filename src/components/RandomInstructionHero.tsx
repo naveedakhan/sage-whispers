@@ -51,8 +51,8 @@ export const RandomInstructionHero = () => {
         }
       }
       
-      // Fetch a new random instruction
-      const { data: randomData } = await supabase
+      // Fetch a new random instruction using PostgreSQL's random() function
+      const { data: allInstructions } = await supabase
         .from("instructions")
         .select(`
           id,
@@ -60,17 +60,19 @@ export const RandomInstructionHero = () => {
           authors (
             name
           )
-        `)
-        .order("random")
-        .limit(1)
-        .single();
+        `);
 
-      if (randomData) {
-        setInstruction(randomData);
-        
-        // Cache the new instruction
-        setCookie("dailyRandomId", randomData.id.toString(), 1);
-        setCookie("dailyRandomTimestamp", now.toString(), 1);
+      if (allInstructions && allInstructions.length > 0) {
+        const randomIndex = Math.floor(Math.random() * allInstructions.length);
+        const randomData = allInstructions[randomIndex];
+
+        if (randomData) {
+          setInstruction(randomData);
+          
+          // Cache the new instruction
+          setCookie("dailyRandomId", randomData.id.toString(), 1);
+          setCookie("dailyRandomTimestamp", now.toString(), 1);
+        }
       }
     } catch (error) {
       console.error("Error fetching random instruction:", error);
