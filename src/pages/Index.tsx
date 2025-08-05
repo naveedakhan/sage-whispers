@@ -118,7 +118,7 @@ const Index = () => {
           <img 
             src={posterImage} 
             alt="Life's Little Instruction Engine" 
-            className="max-w-md w-full h-auto rounded-lg shadow-lg"
+            className="max-w-xs w-full h-auto rounded-lg shadow-lg"
           />
         </div>
 
