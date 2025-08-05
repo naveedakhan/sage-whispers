@@ -216,7 +216,7 @@ export const RandomInstructionHero = () => {
           
           <ShareButtons 
             text={`"${instruction.text}"${instruction.authors ? ` — ${instruction.authors.name}` : ''}`}
-            url={`${window.location.origin}?instruction=${instruction.id}`}
+            url={`https://daily-wisdom.com?instruction=${instruction.id}`}
           />
         </div>
       </div>
