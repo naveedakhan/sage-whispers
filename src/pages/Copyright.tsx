@@ -3,15 +3,18 @@ import { AppNavigation } from "@/components/AppNavigation";
 const Copyright = () => {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-8">
-          <AppNavigation showBackToHome />
-        </div>
-        <header className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">
-            Copyright Disclaimer
-          </h1>
+      <div className="container mx-auto px-4 py-8">
+        <header className="mb-12">
+          <div className="mb-6">
+            <AppNavigation showBackToHome />
+          </div>
         </header>
+        <div className="max-w-4xl mx-auto">
+          <header className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">
+              Copyright Disclaimer
+            </h1>
+          </header>
 
         <div className="prose prose-lg max-w-none">
           <div className="bg-card p-8 rounded-lg shadow-sm border">
@@ -53,6 +56,7 @@ const Copyright = () => {
                 Thank you for being part of that journey.
               </p>
             </div>
+          </div>
           </div>
         </div>
       </div>

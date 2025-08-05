@@ -4,8 +4,12 @@ const About = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
+        <header className="mb-12">
+          <div className="mb-6">
+            <AppNavigation showBackToHome />
+          </div>
+        </header>
         <div className="max-w-4xl mx-auto">
-          <AppNavigation showBackToHome />
           
           <div className="prose prose-lg max-w-none dark:prose-invert">
             <h1 className="text-4xl font-bold mb-6">About Daily Wisdom</h1>
