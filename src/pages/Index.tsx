@@ -100,29 +100,34 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <header className="mb-12">
-          <div className="mb-6">
+        <header className="mb-8">
+          <div className="mb-4">
             <AppNavigation />
           </div>
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-primary">
-              Life's Little Instruction Engine
-            </h1>
+          
+          {/* Hero Section - Responsive Layout */}
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 max-w-4xl mx-auto">
+            {/* Poster Image */}
+            <div className="flex-shrink-0 order-2 md:order-1">
+              <img 
+                src={posterImage} 
+                alt="Life's Little Instruction Engine" 
+                className="w-24 md:w-28 h-auto rounded-lg shadow-lg"
+              />
+            </div>
+            
+            {/* Text Content */}
+            <div className="text-center md:text-left order-1 md:order-2 max-w-lg md:max-w-none">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-3">
+                Life's Little Instruction Engine
+              </h1>
+              <p className="text-base md:text-lg text-muted-foreground">
+                Discover timeless wisdom and practical guidance for living a fulfilling life.
+                Search through thousands of life instructions to find exactly what you need.
+              </p>
+            </div>
           </div>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mt-4">
-            Discover timeless wisdom and practical guidance for living a fulfilling life.
-            Search through thousands of life instructions to find exactly what you need.
-          </p>
         </header>
-
-        {/* Poster Image */}
-        <div className="flex justify-center mb-12">
-          <img 
-            src={posterImage} 
-            alt="Life's Little Instruction Engine" 
-            className="max-w-32 w-full h-auto rounded-lg shadow-lg"
-          />
-        </div>
 
         {/* Random Daily Instruction */}
         <RandomInstructionHero />
