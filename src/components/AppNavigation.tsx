@@ -1,4 +1,5 @@
 import { Menu, ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,33 +14,60 @@ interface AppNavigationProps {
 }
 
 export const AppNavigation = ({ showBackToHome = false }: AppNavigationProps) => {
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+
+  useEffect(() => {
+    const calculateScrollbarWidth = () => {
+      const outer = document.createElement('div');
+      outer.style.visibility = 'hidden';
+      outer.style.overflow = 'scroll';
+      document.body.appendChild(outer);
+
+      const inner = document.createElement('div');
+      outer.appendChild(inner);
+
+      const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
+      outer.parentNode?.removeChild(outer);
+
+      setScrollbarWidth(scrollbarWidth);
+    };
+
+    calculateScrollbarWidth();
+    window.addEventListener('resize', calculateScrollbarWidth);
+    return () => window.removeEventListener('resize', calculateScrollbarWidth);
+  }, []);
+
+  const handleMenuOpenChange = (open: boolean) => {
+    if (open) {
+      // Prevent layout shift by accounting for scrollbar width
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    } else {
+      // Restore normal scrolling
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+  };
+
   return (
-    <nav className="fixed top-4 left-4 right-4 flex items-center">
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          .burger-menu-button {
-            margin-left: auto;
-            margin-right: calc(0px + env(scrollbar-gutter, 0px));
-          }
-          @media (min-width: 768px) {
-            .burger-menu-button {
-              margin-right: 0;
-            }
-          }
-        `
-      }} />
+    <nav className="fixed top-4 left-4 right-4 flex items-center z-50">
       {showBackToHome && (
         <Link to="/">
-          <Button variant="ghost" className="mb-6">
+          <Button variant="ghost" className="absolute top-0 left-0">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Button>
         </Link>
       )}
 
-      <DropdownMenu>
+      <DropdownMenu onOpenChange={handleMenuOpenChange}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="burger-menu-button">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="ml-auto"
+            style={{ marginRight: `${scrollbarWidth}px` }}
+          >
             <Menu className="h-5 w-5" />
           </Button>
         </DropdownMenuTrigger>
