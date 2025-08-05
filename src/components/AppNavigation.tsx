@@ -14,7 +14,20 @@ interface AppNavigationProps {
 
 export const AppNavigation = ({ showBackToHome = false }: AppNavigationProps) => {
   return (
-    <nav className="fixed top-4 inset-x-0 flex items-center px-4">
+    <nav className="fixed top-4 left-4 right-4 flex items-center">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .burger-menu-button {
+            margin-left: auto;
+            margin-right: calc(0px + env(scrollbar-gutter, 0px));
+          }
+          @media (min-width: 768px) {
+            .burger-menu-button {
+              margin-right: 0;
+            }
+          }
+        `
+      }} />
       {showBackToHome && (
         <Link to="/">
           <Button variant="ghost" className="mb-6">
@@ -26,7 +39,7 @@ export const AppNavigation = ({ showBackToHome = false }: AppNavigationProps) =>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="ml-auto">
+          <Button variant="ghost" size="icon" className="burger-menu-button">
             <Menu className="h-5 w-5" />
           </Button>
         </DropdownMenuTrigger>
