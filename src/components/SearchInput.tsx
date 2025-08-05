@@ -102,14 +102,14 @@ export const SearchInput = ({ value, onChange }: SearchInputProps) => {
       </div>
       
       {error && (
-        <div className="absolute top-full mt-2 left-0 right-0 text-sm text-destructive text-center flex items-center justify-center gap-1">
+        <div className="mt-2 text-sm text-destructive text-center flex items-center justify-center gap-1">
           <AlertCircle className="w-4 h-4" />
           {error}
         </div>
       )}
       
       {!localValue && !error && (
-        <div className="absolute top-full mt-2 left-0 right-0 text-sm text-muted-foreground text-center">
+        <div className="mt-3 text-sm text-muted-foreground text-center">
           <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-sm">
             <div className="font-medium mb-1">💡 Search Tips:</div>
             <div className="text-xs space-y-1">
@@ -122,7 +122,7 @@ export const SearchInput = ({ value, onChange }: SearchInputProps) => {
       )}
 
       {localValue && !error && (
-        <div className="absolute top-full mt-2 left-0 right-0 text-sm text-muted-foreground text-center">
+        <div className="mt-2 text-sm text-muted-foreground text-center">
           Searching for: <span className="font-medium text-foreground">"{localValue}"</span>
         </div>
       )}
