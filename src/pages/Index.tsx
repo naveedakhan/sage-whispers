@@ -102,9 +102,15 @@ const Index = () => {
             <h1 className="text-4xl md:text-6xl font-bold text-primary mx-auto">
               Life's Little Instruction Engine
             </h1>
-            <nav className="absolute right-4">
+            <nav className="absolute right-4 flex gap-4">
               <a href="/about" className="text-muted-foreground hover:text-primary transition-colors">
                 About
+              </a>
+              <a href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
+                Privacy
+              </a>
+              <a href="/terms" className="text-muted-foreground hover:text-primary transition-colors">
+                Terms
               </a>
             </nav>
           </div>
