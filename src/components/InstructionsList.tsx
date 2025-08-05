@@ -63,22 +63,22 @@ export const InstructionsList = ({
       setInstructions([]);
       setHasMore(true);
       setError(null);
-      // Trigger fetch immediately when switching to database mode
-      fetchInstructions(true);
     } else {
       // For local mode, filter the existing instructions
       const filtered = filterInstructionsLocally(searchQuery, selectedTags, selectedCategories);
       setInstructions(filtered);
       setHasMore(false); // No pagination for local filtering
     }
-  }, [searchQuery, selectedTags, selectedCategories, searchMode, allInstructions]);
+  }, [searchQuery, selectedTags, selectedCategories, searchMode]);
 
-  // Fetch instructions only in database mode for pagination
+  // Fetch instructions only in database mode
   useEffect(() => {
-    if (searchMode === 'database' && page > 0) {
-      fetchInstructions(false);
+    if (searchMode === 'database') {
+      fetchInstructions(page === 0);
     }
-  }, [page]);
+  }, [searchQuery, selectedTags, selectedCategories, page, searchMode]);
+
+  // Remove allInstructions from the first useEffect dependency to prevent flickering
 
   const fetchInstructions = async (isFirstPage = false) => {
     try {
