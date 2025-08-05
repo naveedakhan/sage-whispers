@@ -148,6 +148,8 @@ const Index = () => {
           searchQuery={searchQuery}
           selectedTags={selectedTags}
           selectedCategories={selectedCategories}
+          tags={tags}
+          categories={categories}
         />
       </div>
     </div>

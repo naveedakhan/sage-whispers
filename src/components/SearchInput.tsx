@@ -81,7 +81,7 @@ export const SearchInput = ({ value, onChange }: SearchInputProps) => {
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
         <Input
           type="text"
-          placeholder="Search instructions, authors, tags, or categories..."
+          placeholder="Try searching for 'friendship', 'work', or 'happiness'..."
           value={localValue}
           onChange={handleInputChange}
           className={`pl-10 pr-10 h-12 text-lg border-2 ${
@@ -108,6 +108,19 @@ export const SearchInput = ({ value, onChange }: SearchInputProps) => {
         </div>
       )}
       
+      {!localValue && !error && (
+        <div className="absolute top-full mt-2 left-0 right-0 text-sm text-muted-foreground text-center">
+          <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-sm">
+            <div className="font-medium mb-1">💡 Search Tips:</div>
+            <div className="text-xs space-y-1">
+              <div>• Search by keywords: "happiness", "work", "family"</div>
+              <div>• Find by topic: "relationships", "success", "wisdom"</div>
+              <div>• Use filters below to narrow by tags and categories</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {localValue && !error && (
         <div className="absolute top-full mt-2 left-0 right-0 text-sm text-muted-foreground text-center">
           Searching for: <span className="font-medium text-foreground">"{localValue}"</span>

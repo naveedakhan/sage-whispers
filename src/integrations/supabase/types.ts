@@ -69,13 +69,6 @@ export type Database = {
             foreignKeyName: "instruction_categories_instruction_id_fkey"
             columns: ["instruction_id"]
             isOneToOne: false
-            referencedRelation: "instruction_full"
-            referencedColumns: ["instruction_id"]
-          },
-          {
-            foreignKeyName: "instruction_categories_instruction_id_fkey"
-            columns: ["instruction_id"]
-            isOneToOne: false
             referencedRelation: "instructions"
             referencedColumns: ["id"]
           },
@@ -95,13 +88,6 @@ export type Database = {
           tag_id?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "instruction_tags_instruction_id_fkey"
-            columns: ["instruction_id"]
-            isOneToOne: false
-            referencedRelation: "instruction_full"
-            referencedColumns: ["instruction_id"]
-          },
           {
             foreignKeyName: "instruction_tags_instruction_id_fkey"
             columns: ["instruction_id"]
@@ -191,35 +177,22 @@ export type Database = {
       }
     }
     Views: {
-      category_usage_summary: {
-        Row: {
-          category: string | null
-          instruction_count: number | null
-        }
-        Relationships: []
-      }
-      instruction_full: {
-        Row: {
-          categories: string[] | null
-          instruction_id: number | null
-          source_id: number | null
-          tags: string[] | null
-          text: string | null
-        }
-        Relationships: []
-      }
-      tag_usage_summary: {
-        Row: {
-          instruction_count: number | null
-          tag: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       bytea_to_text: {
         Args: { data: string }
         Returns: string
+      }
+      get_random_instructions: {
+        Args: { result_limit?: number }
+        Returns: {
+          instruction_id: number
+          text: string
+          source_id: number
+          tags: string[]
+          categories: string[]
+        }[]
       }
       http: {
         Args: { request: Database["public"]["CompositeTypes"]["http_request"] }

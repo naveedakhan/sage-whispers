@@ -16,6 +16,8 @@ interface InstructionsListProps {
   searchQuery: string;
   selectedTags: number[];
   selectedCategories: number[];
+  tags: { id: number; name: string }[];
+  categories: { id: number; name: string }[];
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -24,6 +26,8 @@ export const InstructionsList = ({
   searchQuery,
   selectedTags,
   selectedCategories,
+  tags,
+  categories,
 }: InstructionsListProps) => {
   const [instructions, setInstructions] = useState<Instruction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +44,7 @@ export const InstructionsList = ({
     setError(null);
   }, [searchQuery, selectedTags, selectedCategories]);
 
-  // Fetch instructions
+  // Fetch instructions (random if no filters, search otherwise)
   useEffect(() => {
     fetchInstructions(page === 0);
   }, [searchQuery, selectedTags, selectedCategories, page]);
@@ -53,88 +57,70 @@ export const InstructionsList = ({
         setIsLoadingMore(true);
       }
 
-      let query = supabase
-        .from("instructions")
-        .select(`
-          id,
-          text,
-          authors (
-            name
-          ),
-          instruction_tags (
-            tags (
-              id,
-              name
-            )
-          ),
-          instruction_categories (
-            categories (
-              id,
-              name
-            )
-          )
-        `)
-        .range(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE - 1)
-        .order("id");
+      const hasFilters = searchQuery.trim() || selectedTags.length > 0 || selectedCategories.length > 0;
 
-      // Apply search filter
-      if (searchQuery.trim()) {
-        // For search, we'll use a text search approach
-        // This is a basic implementation - for better search, consider using full-text search
-        query = query.or(`text.ilike.%${searchQuery}%`);
-      }
+      if (!hasFilters) {
+        // Load random instructions when no filters are applied
+        const { data, error: fetchError } = await supabase.rpc('get_random_instructions', {
+          result_limit: 20
+        });
 
-      const { data, error: fetchError } = await query;
-
-      if (fetchError) {
-        throw fetchError;
-      }
-
-      if (data) {
-        // Filter by tags and categories on the client side
-        // In a production app, you'd want to do this filtering in the database
-        let filteredData = data;
-
-        if (selectedTags.length > 0) {
-          filteredData = filteredData.filter(instruction =>
-            instruction.instruction_tags.some(it =>
-              selectedTags.includes(it.tags.id)
-            )
-          );
+        if (fetchError) {
+          throw fetchError;
         }
 
-        if (selectedCategories.length > 0) {
-          filteredData = filteredData.filter(instruction =>
-            instruction.instruction_categories.some(ic =>
-              selectedCategories.includes(ic.categories.id)
-            )
-          );
+        if (data) {
+          // Transform the data to match the expected format
+          const transformedData = data.map((item: any) => ({
+            id: item.instruction_id,
+            text: item.text,
+            authors: null, // Authors not included in the random function yet
+            instruction_tags: item.tags?.map((tag: string) => ({ tags: { id: 0, name: tag } })) || [],
+            instruction_categories: item.categories?.map((cat: string) => ({ categories: { id: 0, name: cat } })) || []
+          }));
+
+          setInstructions(transformedData);
+          setHasMore(false); // No pagination for random results
+        }
+      } else {
+        // Use the secure search function when filters are applied
+        const tagNames = selectedTags.length > 0 ? 
+          tags.filter(tag => selectedTags.includes(tag.id)).map(tag => tag.name) : [];
+        const categoryNames = selectedCategories.length > 0 ? 
+          categories.filter(cat => selectedCategories.includes(cat.id)).map(cat => cat.name) : [];
+
+        const { data, error: fetchError } = await supabase.rpc('search_instructions_secure', {
+          search_term: searchQuery.trim(),
+          tag_filters: tagNames,
+          category_filters: categoryNames,
+          result_limit: (page + 1) * ITEMS_PER_PAGE
+        });
+
+        if (fetchError) {
+          throw fetchError;
         }
 
-        // Additional text search for authors, tags, and categories
-        if (searchQuery.trim()) {
-          const searchLower = searchQuery.toLowerCase();
-          filteredData = filteredData.filter(instruction => {
-            const textMatch = instruction.text.toLowerCase().includes(searchLower);
-            const authorMatch = instruction.authors?.name.toLowerCase().includes(searchLower);
-            const tagMatch = instruction.instruction_tags.some(it =>
-              it.tags.name.toLowerCase().includes(searchLower)
-            );
-            const categoryMatch = instruction.instruction_categories.some(ic =>
-              ic.categories.name.toLowerCase().includes(searchLower)
-            );
-            
-            return textMatch || authorMatch || tagMatch || categoryMatch;
-          });
-        }
+        if (data) {
+          // Transform the data to match the expected format
+          const transformedData = data.map((item: any) => ({
+            id: item.instruction_id,
+            text: item.text,
+            authors: null, // Authors not included in the search function yet
+            instruction_tags: item.tags?.map((tag: string) => ({ tags: { id: 0, name: tag } })) || [],
+            instruction_categories: item.categories?.map((cat: string) => ({ categories: { id: 0, name: cat } })) || []
+          }));
 
-        if (isFirstPage || page === 0) {
-          setInstructions(filteredData);
-        } else {
-          setInstructions(prev => [...prev, ...filteredData]);
-        }
+          if (isFirstPage || page === 0) {
+            setInstructions(transformedData);
+          } else {
+            // For pagination with search, we need to slice the results
+            const startIndex = page * ITEMS_PER_PAGE;
+            const newItems = transformedData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+            setInstructions(prev => [...prev, ...newItems]);
+          }
 
-        setHasMore(data.length === ITEMS_PER_PAGE);
+          setHasMore(transformedData.length === (page + 1) * ITEMS_PER_PAGE);
+        }
       }
     } catch (err) {
       console.error("Error fetching instructions:", err);
