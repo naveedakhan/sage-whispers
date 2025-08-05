@@ -5,6 +5,14 @@ import { SearchInput } from "@/components/SearchInput";
 import { FilterBar } from "@/components/FilterBar";
 import { supabase } from "@/integrations/supabase/client";
 import posterImage from "@/assets/poster.webp";
+import { Menu } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 interface Tag {
   id: number;
@@ -102,16 +110,25 @@ const Index = () => {
             <h1 className="text-4xl md:text-6xl font-bold text-primary mx-auto">
               Life's Little Instruction Engine
             </h1>
-            <nav className="absolute right-4 flex gap-4">
-              <a href="/about" className="text-muted-foreground hover:text-primary transition-colors">
-                About
-              </a>
-              <a href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
-                Privacy
-              </a>
-              <a href="/terms" className="text-muted-foreground hover:text-primary transition-colors">
-                Terms
-              </a>
+            <nav className="absolute right-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <a href="/about">About</a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <a href="/privacy">Privacy</a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <a href="/terms">Terms</a>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </nav>
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
