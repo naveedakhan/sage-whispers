@@ -18,34 +18,26 @@ export const AppNavigation = ({ showBackToHome = false }: AppNavigationProps) =>
 
   useEffect(() => {
     const calculateScrollbarWidth = () => {
-      const outer = document.createElement('div');
-      outer.style.visibility = 'hidden';
-      outer.style.overflow = 'scroll';
-      document.body.appendChild(outer);
-
-      const inner = document.createElement('div');
-      outer.appendChild(inner);
-
-      const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
-      outer.parentNode?.removeChild(outer);
-
-      setScrollbarWidth(scrollbarWidth);
+      const width = window.innerWidth - document.documentElement.clientWidth;
+      setScrollbarWidth(width);
     };
 
     calculateScrollbarWidth();
-    window.addEventListener('resize', calculateScrollbarWidth);
-    return () => window.removeEventListener('resize', calculateScrollbarWidth);
+    window.addEventListener("resize", calculateScrollbarWidth);
+    return () => window.removeEventListener("resize", calculateScrollbarWidth);
   }, []);
 
   const handleMenuOpenChange = (open: boolean) => {
     if (open) {
-      // Prevent layout shift by accounting for scrollbar width
-      document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      // Prevent layout shift by accounting for scrollbar width when present
+      document.body.style.overflow = "hidden";
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+      }
     } else {
       // Restore normal scrolling
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     }
   };
 
@@ -62,11 +54,10 @@ export const AppNavigation = ({ showBackToHome = false }: AppNavigationProps) =>
 
       <DropdownMenu onOpenChange={handleMenuOpenChange}>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="ml-auto"
-            style={{ marginRight: `${scrollbarWidth}px` }}
           >
             <Menu className="h-5 w-5" />
           </Button>
