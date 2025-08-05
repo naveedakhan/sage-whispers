@@ -37,37 +37,31 @@ export const ShareButtons = ({ text, url }: ShareButtonsProps) => {
 
   const handleTwitterShare = () => {
     console.log('Twitter share clicked', { text, url });
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    console.log('Twitter URL:', twitterUrl);
+    
     try {
-      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-      console.log('Twitter URL:', twitterUrl);
-      const link = document.createElement('a');
-      link.href = twitterUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      console.log('Twitter share link clicked successfully');
+      window.open(twitterUrl, '_blank', 'width=550,height=420,scrollbars=no,resizable=no');
+      console.log('Twitter share window opened successfully');
     } catch (error) {
       console.error('Twitter share error:', error);
+      // Fallback to direct navigation
+      window.open(twitterUrl, '_blank');
     }
   };
 
   const handleFacebookShare = () => {
     console.log('Facebook share clicked', { text, url });
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
+    console.log('Facebook URL:', facebookUrl);
+    
     try {
-      const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
-      console.log('Facebook URL:', facebookUrl);
-      const link = document.createElement('a');
-      link.href = facebookUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      console.log('Facebook share link clicked successfully');
+      window.open(facebookUrl, '_blank', 'width=626,height=436,scrollbars=no,resizable=no');
+      console.log('Facebook share window opened successfully');
     } catch (error) {
       console.error('Facebook share error:', error);
+      // Fallback to direct navigation
+      window.open(facebookUrl, '_blank');
     }
   };
 
