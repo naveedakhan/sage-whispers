@@ -127,6 +127,9 @@ const Index = () => {
                   <DropdownMenuItem asChild>
                     <a href="/terms">Terms</a>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <a href="/copyright">Copyright</a>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </nav>
