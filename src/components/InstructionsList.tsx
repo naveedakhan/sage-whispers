@@ -63,6 +63,8 @@ export const InstructionsList = ({
       setInstructions([]);
       setHasMore(true);
       setError(null);
+      // Trigger fetch immediately when switching to database mode
+      fetchInstructions(true);
     } else {
       // For local mode, filter the existing instructions
       const filtered = filterInstructionsLocally(searchQuery, selectedTags, selectedCategories);
@@ -71,12 +73,12 @@ export const InstructionsList = ({
     }
   }, [searchQuery, selectedTags, selectedCategories, searchMode, allInstructions]);
 
-  // Fetch instructions only in database mode
+  // Fetch instructions only in database mode for pagination
   useEffect(() => {
-    if (searchMode === 'database') {
-      fetchInstructions(page === 0);
+    if (searchMode === 'database' && page > 0) {
+      fetchInstructions(false);
     }
-  }, [searchQuery, selectedTags, selectedCategories, page, searchMode]);
+  }, [page]);
 
   const fetchInstructions = async (isFirstPage = false) => {
     try {
