@@ -5,7 +5,7 @@ import { SearchInput } from "@/components/SearchInput";
 import { FilterBar } from "@/components/FilterBar";
 import { AppNavigation } from "@/components/AppNavigation";
 import { supabase } from "@/integrations/supabase/client";
-import posterImage from "@/assets/poster.webp";
+const posterImage = "/lovable-uploads/0361c2d5-17d6-4050-ab2a-aefaf3a157b0.png";
 
 interface Tag {
   id: number;
