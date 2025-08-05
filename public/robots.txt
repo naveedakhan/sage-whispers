@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://daily-wisdom.com/sitemap.xml
+Sitemap: /sitemap.xml
