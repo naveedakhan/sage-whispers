@@ -6,8 +6,8 @@ const posterImage = "/lovable-uploads/0361c2d5-17d6-4050-ab2a-aefaf3a157b0.png";
 const Index = () => {
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+    <div className="h-screen flex flex-col justify-between bg-background">
+        <div className="container mx-auto px-4 py-4 flex flex-col justify-between flex-grow">
         {/* Header */}
         <header className="mb-8">
           <div className="mb-6">
@@ -27,10 +27,10 @@ const Index = () => {
             
             {/* Text Content */}
             <div className="text-center md:text-left order-1 md:order-2 max-w-lg md:max-w-none">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-3">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-2">
                 Life's Little Instruction Engine
               </h1>
-              <p className="text-base md:text-lg text-muted-foreground">
+              <p className="text-sm md:text-base text-muted-foreground leading-snug">
                 Discover timeless wisdom and practical guidance for living a fulfilling life.
                 Search through thousands of life instructions to find exactly what you need.
               </p>
@@ -42,7 +42,7 @@ const Index = () => {
         <RandomInstructionHero />
 
         {/* Search Instructions Button */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-4 mt-2">
           <Link 
             to="/search"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-lg hover:shadow-xl"
