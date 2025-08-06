@@ -75,7 +75,7 @@ export const RandomInstructionHero = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [history, setHistory] = useState<Instruction[]>([]);
-  const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
+  const [currentHistoryIndex, setCurrentHistoryIndex] = useState(0);
 
   const fetchRandomInstruction = async (forceRefresh = false) => {
     try {
@@ -105,6 +105,12 @@ export const RandomInstructionHero = () => {
           
         if (data) {
           setInstruction(data);
+          
+          // Add to history if this is the first instruction
+          if (history.length === 0) {
+            addToHistory(data);
+          }
+          
           setIsLoading(false);
           setIsRefreshing(false);
           return;
@@ -126,8 +132,13 @@ export const RandomInstructionHero = () => {
         const randomIndex = Math.floor(Math.random() * allInstructions.length);
         const randomData = allInstructions[randomIndex];
 
-        if (randomData) {
+      if (randomData) {
           setInstruction(randomData);
+          
+          // Add to history if this is the first instruction or if it's different from current
+          if (history.length === 0 || history[currentHistoryIndex]?.id !== randomData.id) {
+            addToHistory(randomData);
+          }
           
           // Cache the new instruction
           safeSetCookie("dailyRandomId", randomData.id.toString(), 1);
@@ -216,23 +227,8 @@ export const RandomInstructionHero = () => {
         const instructionWithFlag = { ...data, wasExternal: true };
         setInstruction(instructionWithFlag);
         
-        // Preserve existing history and append shared instruction
-        setHistory(prevHistory => {
-          // Check if this instruction is already the last item
-          if (prevHistory.length > 0 && prevHistory[prevHistory.length - 1].id === data.id) {
-            return prevHistory;
-          }
-          return [...prevHistory, instructionWithFlag];
-        });
-        
-        // Update index to point to the new instruction using functional update
-        setCurrentHistoryIndex(prevIndex => {
-          setHistory(currentHistory => {
-            const newIndex = currentHistory.length > 0 ? currentHistory.length - 1 : 0;
-            return currentHistory;
-          });
-          return Math.max(0, history.length);
-        });
+        // Add to history (will preserve existing history and append)
+        addToHistory(instructionWithFlag);
         
         // Update URL to reflect the shared instruction
         updateURL(data.id);
@@ -262,37 +258,36 @@ export const RandomInstructionHero = () => {
 
   const addToHistory = (newInstruction: Instruction) => {
     setHistory(prevHistory => {
-      setCurrentHistoryIndex(prevIndex => {
-        // Check if the new instruction is the same as the next one in forward direction
-        const nextInstruction = prevHistory[prevIndex + 1];
-        if (nextInstruction && nextInstruction.id === newInstruction.id) {
-          // Just increment index instead of adding duplicate
-          return prevIndex + 1;
-        }
+      // Check if the new instruction is the same as the next one in forward direction
+      if (prevHistory[currentHistoryIndex + 1]?.id === newInstruction.id) {
+        // Just increment index instead of adding duplicate
+        setCurrentHistoryIndex(prevIndex => prevIndex + 1);
+        return prevHistory;
+      }
 
-        // Don't add if it's the same instruction as the last one
-        if (prevHistory.length > 0 && prevHistory[prevHistory.length - 1].id === newInstruction.id) {
-          return prevIndex;
-        }
-        
-        // If we're not at the end of history, truncate everything after current position
-        let updatedHistory: Instruction[];
-        if (prevIndex < prevHistory.length - 1) {
-          updatedHistory = [...prevHistory.slice(0, prevIndex + 1), newInstruction];
-        } else {
-          // If we're at the end, just add the new instruction
-          updatedHistory = [...prevHistory, newInstruction];
-        }
-        
-        // Limit history to 20 instructions
-        if (updatedHistory.length > 20) {
-          updatedHistory = updatedHistory.slice(-20);
-        }
-
-        return updatedHistory.length - 1;
-      });
+      // Don't add if it's the same instruction as the last one
+      if (prevHistory.length > 0 && prevHistory[prevHistory.length - 1].id === newInstruction.id) {
+        return prevHistory;
+      }
       
-      return prevHistory;
+      // If we're not at the end of history, truncate everything after current position
+      let updatedHistory: Instruction[];
+      if (currentHistoryIndex < prevHistory.length - 1) {
+        updatedHistory = [...prevHistory.slice(0, currentHistoryIndex + 1), newInstruction];
+      } else {
+        // If we're at the end, just add the new instruction
+        updatedHistory = [...prevHistory, newInstruction];
+      }
+      
+      // Limit history to 20 instructions
+      if (updatedHistory.length > 20) {
+        updatedHistory = updatedHistory.slice(-20);
+      }
+
+      // Update index to point to the new instruction
+      setCurrentHistoryIndex(updatedHistory.length - 1);
+      
+      return updatedHistory;
     });
   };
 
