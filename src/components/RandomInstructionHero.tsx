@@ -5,12 +5,70 @@ import { RefreshCw, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ShareButtons } from "@/components/ShareButtons";
 import { getCookie, setCookie, getLocalStorage, setLocalStorage } from "@/utils/storage";
+import { toast } from "@/hooks/use-toast";
 
 interface Instruction {
   id: number;
   text: string;
   authors: { name: string } | null;
+  wasExternal?: boolean;
 }
+
+// In-memory fallback storage when localStorage fails
+let memoryStorage: { [key: string]: any } = {};
+let storageAvailable = true;
+
+// Safe storage wrappers with fallback
+const safeGetLocalStorage = (key: string): any => {
+  try {
+    return getLocalStorage(key);
+  } catch (error) {
+    console.warn('localStorage failed, using memory fallback:', error);
+    if (storageAvailable) {
+      storageAvailable = false;
+      toast({
+        title: "Storage Access Restricted",
+        description: "Your browser has restricted access to storage. History will not be saved after this session.",
+        variant: "destructive",
+      });
+    }
+    return memoryStorage[key] || null;
+  }
+};
+
+const safeSetLocalStorage = (key: string, value: any): void => {
+  try {
+    setLocalStorage(key, value);
+  } catch (error) {
+    console.warn('localStorage failed, using memory fallback:', error);
+    if (storageAvailable) {
+      storageAvailable = false;
+      toast({
+        title: "Storage Access Restricted",
+        description: "Your browser has restricted access to storage. History will not be saved after this session.",
+        variant: "destructive",
+      });
+    }
+    memoryStorage[key] = value;
+  }
+};
+
+const safeGetCookie = (name: string): string | null => {
+  try {
+    return getCookie(name);
+  } catch (error) {
+    console.warn('Cookie access failed:', error);
+    return null;
+  }
+};
+
+const safeSetCookie = (name: string, value: string, days: number): void => {
+  try {
+    setCookie(name, value, days);
+  } catch (error) {
+    console.warn('Cookie setting failed:', error);
+  }
+};
 
 export const RandomInstructionHero = () => {
   const [instruction, setInstruction] = useState<Instruction | null>(null);
@@ -24,8 +82,8 @@ export const RandomInstructionHero = () => {
       setIsRefreshing(true);
       
       // Check if we have a cached daily instruction
-      const cachedId = getCookie("dailyRandomId");
-      const cacheTimestamp = getCookie("dailyRandomTimestamp");
+      const cachedId = safeGetCookie("dailyRandomId");
+      const cacheTimestamp = safeGetCookie("dailyRandomTimestamp");
       const now = Date.now();
       const twentyFourHours = 24 * 60 * 60 * 1000;
       
@@ -72,13 +130,13 @@ export const RandomInstructionHero = () => {
           setInstruction(randomData);
           
           // Cache the new instruction
-          setCookie("dailyRandomId", randomData.id.toString(), 1);
-          setCookie("dailyRandomTimestamp", now.toString(), 1);
+          safeSetCookie("dailyRandomId", randomData.id.toString(), 1);
+          safeSetCookie("dailyRandomTimestamp", now.toString(), 1);
           
           // Update URL when a new random instruction is fetched
-          const url = new URL(window.location.href);
-          url.searchParams.set('instruction', randomData.id.toString());
-          window.history.replaceState({}, '', url.toString());
+          updateURL(randomData.id);
+          
+          return randomData;
         }
       }
     } catch (error) {
@@ -112,8 +170,8 @@ export const RandomInstructionHero = () => {
 
   useEffect(() => {
     // Load history from localStorage
-    const savedHistory = getLocalStorage("instructionHistory") || [];
-    const savedIndex = getLocalStorage("instructionHistoryIndex") || -1;
+    const savedHistory = safeGetLocalStorage("instructionHistory") || [];
+    const savedIndex = safeGetLocalStorage("instructionHistoryIndex") || -1;
     
     setHistory(savedHistory);
     setCurrentHistoryIndex(savedIndex);
@@ -134,8 +192,8 @@ export const RandomInstructionHero = () => {
   // Save history to localStorage whenever it changes
   useEffect(() => {
     if (history.length > 0) {
-      setLocalStorage("instructionHistory", history);
-      setLocalStorage("instructionHistoryIndex", currentHistoryIndex);
+      safeSetLocalStorage("instructionHistory", history);
+      safeSetLocalStorage("instructionHistoryIndex", currentHistoryIndex);
     }
   }, [history, currentHistoryIndex]);
 
@@ -155,11 +213,29 @@ export const RandomInstructionHero = () => {
         .single();
         
       if (data) {
-        setInstruction(data);
+        const instructionWithFlag = { ...data, wasExternal: true };
+        setInstruction(instructionWithFlag);
         
-        // Add shared instruction to history and reset index
-        setHistory([data]);
-        setCurrentHistoryIndex(0);
+        // Preserve existing history and append shared instruction
+        setHistory(prevHistory => {
+          // Check if this instruction is already the last item
+          if (prevHistory.length > 0 && prevHistory[prevHistory.length - 1].id === data.id) {
+            return prevHistory;
+          }
+          return [...prevHistory, instructionWithFlag];
+        });
+        
+        // Update index to point to the new instruction using functional update
+        setCurrentHistoryIndex(prevIndex => {
+          setHistory(currentHistory => {
+            const newIndex = currentHistory.length > 0 ? currentHistory.length - 1 : 0;
+            return currentHistory;
+          });
+          return Math.max(0, history.length);
+        });
+        
+        // Update URL to reflect the shared instruction
+        updateURL(data.id);
       } else {
         // If specific instruction not found, fallback to random
         fetchRandomInstruction();
@@ -173,38 +249,50 @@ export const RandomInstructionHero = () => {
     }
   };
 
+  // Helper function to update URL consistently
+  const updateURL = (instructionId: number) => {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('instruction', instructionId.toString());
+      window.history.replaceState({}, '', url.toString());
+    } catch (error) {
+      console.warn('Failed to update URL:', error);
+    }
+  };
+
   const addToHistory = (newInstruction: Instruction) => {
     setHistory(prevHistory => {
-      // Don't add if it's the same instruction as the last one
-      if (prevHistory.length > 0 && prevHistory[prevHistory.length - 1].id === newInstruction.id) {
-        return prevHistory;
-      }
+      setCurrentHistoryIndex(prevIndex => {
+        // Check if the new instruction is the same as the next one in forward direction
+        const nextInstruction = prevHistory[prevIndex + 1];
+        if (nextInstruction && nextInstruction.id === newInstruction.id) {
+          // Just increment index instead of adding duplicate
+          return prevIndex + 1;
+        }
+
+        // Don't add if it's the same instruction as the last one
+        if (prevHistory.length > 0 && prevHistory[prevHistory.length - 1].id === newInstruction.id) {
+          return prevIndex;
+        }
+        
+        // If we're not at the end of history, truncate everything after current position
+        let updatedHistory: Instruction[];
+        if (prevIndex < prevHistory.length - 1) {
+          updatedHistory = [...prevHistory.slice(0, prevIndex + 1), newInstruction];
+        } else {
+          // If we're at the end, just add the new instruction
+          updatedHistory = [...prevHistory, newInstruction];
+        }
+        
+        // Limit history to 20 instructions
+        if (updatedHistory.length > 20) {
+          updatedHistory = updatedHistory.slice(-20);
+        }
+
+        return updatedHistory.length - 1;
+      });
       
-      // If we're not at the end of history, truncate everything after current position
-      let updatedHistory: Instruction[];
-      if (currentHistoryIndex < prevHistory.length - 1) {
-        updatedHistory = [...prevHistory.slice(0, currentHistoryIndex + 1), newInstruction];
-      } else {
-        // If we're at the end, just add the new instruction
-        updatedHistory = [...prevHistory, newInstruction];
-      }
-      
-      // Limit history to 20 instructions
-      if (updatedHistory.length > 20) {
-        updatedHistory = updatedHistory.slice(-20);
-      }
-      
-      return updatedHistory;
-    });
-    
-    // Update index to point to the new instruction (use callback to avoid stale closure)
-    setCurrentHistoryIndex(prevIndex => {
-      // Calculate new index based on current history state
-      if (currentHistoryIndex < history.length - 1) {
-        return currentHistoryIndex + 1;
-      } else {
-        return history.length;
-      }
+      return prevHistory;
     });
   };
 
@@ -214,35 +302,42 @@ export const RandomInstructionHero = () => {
     }
     
     // Clear cache when manually refreshing
-    setCookie("dailyRandomId", "", -1);
-    setCookie("dailyRandomTimestamp", "", -1);
+    safeSetCookie("dailyRandomId", "", -1);
+    safeSetCookie("dailyRandomTimestamp", "", -1);
     
-    await fetchRandomInstruction(true);
+    const newInstruction = await fetchRandomInstruction(true);
+    if (newInstruction && newInstruction.id) {
+      updateURL(newInstruction.id);
+    }
   };
 
   const handleBack = () => {
-    if (currentHistoryIndex > 0) {
-      const prevInstruction = history[currentHistoryIndex - 1];
-      setInstruction(prevInstruction);
-      setCurrentHistoryIndex(prev => prev - 1);
-      
-      // Update URL without triggering page reload
-      const url = new URL(window.location.href);
-      url.searchParams.set('instruction', prevInstruction.id.toString());
-      window.history.replaceState({}, '', url.toString());
+    // Validate bounds before proceeding
+    if (currentHistoryIndex > 0 && currentHistoryIndex <= history.length) {
+      setCurrentHistoryIndex(prevIndex => {
+        const newIndex = prevIndex - 1;
+        const prevInstruction = history[newIndex];
+        if (prevInstruction) {
+          setInstruction(prevInstruction);
+          updateURL(prevInstruction.id);
+        }
+        return newIndex;
+      });
     }
   };
 
   const handleForward = () => {
-    if (currentHistoryIndex < history.length - 1) {
-      const nextInstruction = history[currentHistoryIndex + 1];
-      setInstruction(nextInstruction);
-      setCurrentHistoryIndex(prev => prev + 1);
-      
-      // Update URL without triggering page reload
-      const url = new URL(window.location.href);
-      url.searchParams.set('instruction', nextInstruction.id.toString());
-      window.history.replaceState({}, '', url.toString());
+    // Validate bounds before proceeding
+    if (currentHistoryIndex >= 0 && currentHistoryIndex < history.length - 1) {
+      setCurrentHistoryIndex(prevIndex => {
+        const newIndex = prevIndex + 1;
+        const nextInstruction = history[newIndex];
+        if (nextInstruction) {
+          setInstruction(nextInstruction);
+          updateURL(nextInstruction.id);
+        }
+        return newIndex;
+      });
     }
   };
 
