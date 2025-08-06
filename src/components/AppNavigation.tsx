@@ -59,6 +59,9 @@ export const AppNavigation = ({ showBackToHome = false }: AppNavigationProps) =>
             <Link to="/">Home</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
+            <Link to="/search">Search</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <Link to="/about">About</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
