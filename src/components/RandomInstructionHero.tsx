@@ -375,7 +375,7 @@ export const RandomInstructionHero = () => {
 
   if (isLoading) {
     return (
-      <Card className="mb-12 p-8 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+      <Card className="mb-4 px-4 py-5 sm:px-5 sm:py-5 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
         <div className="animate-pulse">
           <div className="h-8 bg-muted rounded mb-4"></div>
           <div className="h-20 bg-muted rounded mb-4"></div>
@@ -387,7 +387,7 @@ export const RandomInstructionHero = () => {
 
   if (!instruction) {
     return (
-      <Card className="mb-12 p-8 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+      <Card className="mb-4 px-4 py-5 sm:px-5 sm:py-5 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
         <div className="text-center">
           <p className="text-muted-foreground">Unable to load daily instruction</p>
           <Button 
@@ -411,7 +411,9 @@ export const RandomInstructionHero = () => {
           <Quote className="w-8 h-8 text-primary" />
         </div>
         
-        <h2 className="text-2xl md:text-3xl font-bold text-primary mb-6">
+        <h2 className="text-xl md:text-2xl font-semibold text-primary mb-4">
+        <blockquote className="text-base md:text-lg leading-snug mb-4 font-serif text-foreground">
+          <p className="text-sm text-muted-foreground mb-4"></p>
           Daily Instruction
         </h2>
         

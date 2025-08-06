@@ -7,7 +7,7 @@ const Index = () => {
 
   return (
     <div className="h-screen flex flex-col justify-between bg-background">
-        <div className="container mx-auto px-4 py-4 flex flex-col justify-between flex-grow">
+        <div className="container mx-auto px-4 py-2 flex flex-col justify-between flex-grow">
         {/* Header */}
         <header className="mb-8">
           <div className="mb-6">
@@ -42,7 +42,7 @@ const Index = () => {
         <RandomInstructionHero />
 
         {/* Search Instructions Button */}
-        <div className="text-center mb-4 mt-2">
+        <div className="text-center mb-2 mt-1">
           <Link 
             to="/search"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-lg hover:shadow-xl"
