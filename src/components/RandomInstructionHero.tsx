@@ -135,10 +135,15 @@ export const RandomInstructionHero = () => {
       if (randomData) {
           setInstruction(randomData);
           
-          // Add to history if this is the first instruction or if it's different from current
-          if (history.length === 0 || history[currentHistoryIndex]?.id !== randomData.id) {
-            addToHistory(randomData);
-          }
+          console.log('fetchRandomInstruction - adding to history:', { 
+            instructionId: randomData.id,
+            currentHistoryLength: history.length,
+            currentHistoryIndex,
+            forceRefresh 
+          });
+          
+          // Always add to history when generating a new instruction
+          addToHistory(randomData);
           
           // Cache the new instruction
           safeSetCookie("dailyRandomId", randomData.id.toString(), 1);
@@ -182,10 +187,10 @@ export const RandomInstructionHero = () => {
   useEffect(() => {
     // Load history from localStorage
     const savedHistory = safeGetLocalStorage("instructionHistory") || [];
-    const savedIndex = safeGetLocalStorage("instructionHistoryIndex") || -1;
+    const savedIndex = safeGetLocalStorage("instructionHistoryIndex");
     
     setHistory(savedHistory);
-    setCurrentHistoryIndex(savedIndex);
+    setCurrentHistoryIndex(savedIndex !== null ? savedIndex : (savedHistory.length > 0 ? savedHistory.length - 1 : 0));
 
     // Check if there's a shared instruction ID in the URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -257,44 +262,73 @@ export const RandomInstructionHero = () => {
   };
 
   const addToHistory = (newInstruction: Instruction) => {
+    console.log('addToHistory called with:', { 
+      newInstructionId: newInstruction.id, 
+      currentHistoryLength: history.length, 
+      currentHistoryIndex 
+    });
+    
     setHistory(prevHistory => {
-      // Check if the new instruction is the same as the next one in forward direction
-      if (prevHistory[currentHistoryIndex + 1]?.id === newInstruction.id) {
-        // Just increment index instead of adding duplicate
-        setCurrentHistoryIndex(prevIndex => prevIndex + 1);
-        return prevHistory;
-      }
+      setCurrentHistoryIndex(prevIndex => {
+        console.log('addToHistory - state:', { 
+          historyLength: prevHistory.length, 
+          currentIndex: prevIndex,
+          nextInstructionId: prevHistory[prevIndex + 1]?.id
+        });
+        
+        // Check if the new instruction is the same as the next one in forward direction
+        if (prevHistory[prevIndex + 1]?.id === newInstruction.id) {
+          console.log('Found duplicate in forward history, incrementing index');
+          // Just increment index instead of adding duplicate
+          return prevIndex + 1;
+        }
 
-      // Don't add if it's the same instruction as the last one
-      if (prevHistory.length > 0 && prevHistory[prevHistory.length - 1].id === newInstruction.id) {
-        return prevHistory;
-      }
-      
-      // If we're not at the end of history, truncate everything after current position
-      let updatedHistory: Instruction[];
-      if (currentHistoryIndex < prevHistory.length - 1) {
-        updatedHistory = [...prevHistory.slice(0, currentHistoryIndex + 1), newInstruction];
-      } else {
-        // If we're at the end, just add the new instruction
-        updatedHistory = [...prevHistory, newInstruction];
-      }
-      
-      // Limit history to 20 instructions
-      if (updatedHistory.length > 20) {
-        updatedHistory = updatedHistory.slice(-20);
-      }
+        // Don't add if it's the same instruction as the current one
+        if (prevHistory[prevIndex]?.id === newInstruction.id) {
+          console.log('Same as current instruction, not adding');
+          return prevIndex;
+        }
+        
+        // If we're not at the end of history, truncate everything after current position
+        let updatedHistory: Instruction[];
+        if (prevIndex < prevHistory.length - 1) {
+          console.log('Truncating history after current position');
+          updatedHistory = [...prevHistory.slice(0, prevIndex + 1), newInstruction];
+        } else {
+          console.log('Adding to end of history');
+          // If we're at the end, just add the new instruction
+          updatedHistory = [...prevHistory, newInstruction];
+        }
+        
+        // Limit history to 20 instructions
+        if (updatedHistory.length > 20) {
+          updatedHistory = updatedHistory.slice(-20);
+        }
 
-      // Update index to point to the new instruction
-      setCurrentHistoryIndex(updatedHistory.length - 1);
+        console.log('Updated history:', { 
+          oldLength: prevHistory.length, 
+          newLength: updatedHistory.length,
+          newIndex: updatedHistory.length - 1
+        });
+
+        // Update the parent history state
+        setHistory(updatedHistory);
+        
+        // Return the new index
+        return updatedHistory.length - 1;
+      });
       
-      return updatedHistory;
+      // This will be overridden by the setHistory call above, but we need to return something
+      return prevHistory;
     });
   };
 
   const handleRefresh = async () => {
-    if (instruction) {
-      addToHistory(instruction);
-    }
+    console.log('handleRefresh called - current state:', { 
+      currentHistoryIndex, 
+      historyLength: history.length,
+      currentInstructionId: instruction?.id 
+    });
     
     // Clear cache when manually refreshing
     safeSetCookie("dailyRandomId", "", -1);
