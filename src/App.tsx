@@ -6,12 +6,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import Index from "./pages/Index";
+import Search from "./pages/Search";
 import About from "./pages/About";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Copyright from "./pages/Copyright";
 import NotFound from "./pages/NotFound";
 import ScrollReset from "@/components/ScrollReset";
+import { Footer } from "@/components/Footer";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +24,7 @@ const AppContent = () => {
     <>
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/search" element={<Search />} />
         <Route path="/about" element={<About />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
@@ -29,6 +32,7 @@ const AppContent = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
       <ScrollToTopButton />
+      <Footer />
     </>
   );
 };

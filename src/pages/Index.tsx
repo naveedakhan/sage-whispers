@@ -1,106 +1,15 @@
-import { useState, useEffect } from "react";
 import { RandomInstructionHero } from "@/components/RandomInstructionHero";
-import { InstructionsList } from "@/components/InstructionsList";
-import { SearchInput } from "@/components/SearchInput";
-import { FilterBar } from "@/components/FilterBar";
 import { AppNavigation } from "@/components/AppNavigation";
-import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 const posterImage = "/lovable-uploads/0361c2d5-17d6-4050-ab2a-aefaf3a157b0.png";
 
-interface Tag {
-  id: number;
-  name: string;
-}
-
-interface Category {
-  id: number;
-  name: string;
-}
-
 const Index = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTags, setSelectedTags] = useState<number[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchMode, setSearchMode] = useState<'database' | 'local'>('database');
-  const [hasLoadedInstructions, setHasLoadedInstructions] = useState(false);
-
-  // Load initial data and restore state from localStorage
-  useEffect(() => {
-    const loadInitialData = async () => {
-      try {
-        // Fetch tags and categories
-        const [tagsResult, categoriesResult] = await Promise.all([
-          supabase.from("tags").select("*").order("name"),
-          supabase.from("categories").select("*").order("name")
-        ]);
-
-        if (tagsResult.data) setTags(tagsResult.data);
-        if (categoriesResult.data) setCategories(categoriesResult.data);
-
-        // Restore state from localStorage
-        const savedSearch = localStorage.getItem("instructionSearch");
-        const savedTags = localStorage.getItem("selectedTags");
-        const savedCategories = localStorage.getItem("selectedCategories");
-
-        if (savedSearch) setSearchQuery(savedSearch);
-        if (savedTags) setSelectedTags(JSON.parse(savedTags));
-        if (savedCategories) setSelectedCategories(JSON.parse(savedCategories));
-      } catch (error) {
-        console.error("Error loading initial data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadInitialData();
-  }, []);
-
-  // Save state to localStorage
-  useEffect(() => {
-    localStorage.setItem("instructionSearch", searchQuery);
-  }, [searchQuery]);
-
-  useEffect(() => {
-    localStorage.setItem("selectedTags", JSON.stringify(selectedTags));
-  }, [selectedTags]);
-
-  useEffect(() => {
-    localStorage.setItem("selectedCategories", JSON.stringify(selectedCategories));
-  }, [selectedCategories]);
-
-  const handleClearFilters = () => {
-    setSearchQuery("");
-    setSelectedTags([]);
-    setSelectedCategories([]);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-64 bg-muted rounded-lg mb-8"></div>
-            <div className="h-12 bg-muted rounded mb-4"></div>
-            <div className="h-16 bg-muted rounded mb-8"></div>
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-24 bg-muted rounded"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="container mx-auto px-4 flex-1 flex flex-col">
         {/* Header */}
-        <header className="mb-8">
+        <header className="py-6">
           <div className="mb-6">
             <AppNavigation />
           </div>
@@ -129,40 +38,23 @@ const Index = () => {
           </div>
         </header>
 
-        {/* Random Daily Instruction */}
-        <RandomInstructionHero />
+        {/* Main Content Area - Evenly Spaced */}
+        <div className="flex-1 flex flex-col justify-center space-y-8">
+          {/* Random Daily Instruction */}
+          <div className="flex-1 flex items-center justify-center">
+            <RandomInstructionHero />
+          </div>
 
-        {/* Search and Filters */}
-        <div className="mb-12 space-y-6 relative">
-            <SearchInput 
-              value={searchQuery} 
-              onChange={setSearchQuery}
-              searchMode={searchMode}
-              onSearchModeChange={setSearchMode}
-              hasLoadedInstructions={hasLoadedInstructions}
-            />
-          
-          <FilterBar
-            tags={tags}
-            categories={categories}
-            selectedTags={selectedTags}
-            selectedCategories={selectedCategories}
-            onTagsChange={setSelectedTags}
-            onCategoriesChange={setSelectedCategories}
-            onClearFilters={handleClearFilters}
-          />
+          {/* Search Instructions Button */}
+          <div className="text-center">
+            <Link 
+              to="/search"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-lg hover:shadow-xl"
+            >
+              Search Instructions
+            </Link>
+          </div>
         </div>
-
-        {/* Instructions List */}
-            <InstructionsList
-              searchQuery={searchQuery}
-              selectedTags={selectedTags}
-              selectedCategories={selectedCategories}
-              tags={tags}
-              categories={categories}
-              searchMode={searchMode}
-              onInstructionsLoaded={setHasLoadedInstructions}
-            />
       </div>
     </div>
   );
