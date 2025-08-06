@@ -6,10 +6,10 @@ const posterImage = "/lovable-uploads/0361c2d5-17d6-4050-ab2a-aefaf3a157b0.png";
 const Index = () => {
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="container mx-auto px-4 flex-1 flex flex-col">
         {/* Header */}
-        <header className="mb-8">
+        <header className="py-6">
           <div className="mb-6">
             <AppNavigation />
           </div>
@@ -38,17 +38,22 @@ const Index = () => {
           </div>
         </header>
 
-        {/* Random Daily Instruction */}
-        <RandomInstructionHero />
+        {/* Main Content Area - Evenly Spaced */}
+        <div className="flex-1 flex flex-col justify-center space-y-8">
+          {/* Random Daily Instruction */}
+          <div className="flex-1 flex items-center justify-center">
+            <RandomInstructionHero />
+          </div>
 
-        {/* Search Instructions Button */}
-        <div className="text-center mb-8">
-          <Link 
-            to="/search"
-            className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-lg hover:shadow-xl"
-          >
-            Search Instructions
-          </Link>
+          {/* Search Instructions Button */}
+          <div className="text-center">
+            <Link 
+              to="/search"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-lg hover:shadow-xl"
+            >
+              Search Instructions
+            </Link>
+          </div>
         </div>
       </div>
     </div>
