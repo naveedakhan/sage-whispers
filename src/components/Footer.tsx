@@ -6,7 +6,7 @@ export const Footer = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-sm text-muted-foreground">
-            © 2024 Life's Little Instruction Engine. All rights reserved.
+            © <span id="currentYear"></span> Life's Little Instruction Engine. All rights reserved.
           </div>
           
           <div className="flex flex-wrap gap-6 text-sm">
