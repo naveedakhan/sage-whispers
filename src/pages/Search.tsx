@@ -4,29 +4,23 @@ import { SearchInput } from "@/components/SearchInput";
 import { FilterBar } from "@/components/FilterBar";
 import { AppNavigation } from "@/components/AppNavigation";
 import { supabase } from "@/integrations/supabase/client";
-
-interface Tag {
-  id: number;
-  name: string;
-}
-
-interface Category {
-  id: number;
-  name: string;
-}
+import { usePersistentState } from "@/hooks/usePersistentState";
+import type { Category, Tag } from "@/types/filters";
 
 const Search = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTags, setSelectedTags] = useState<number[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = usePersistentState("instructionSearch", "");
+  const [selectedTags, setSelectedTags] = usePersistentState<number[]>("selectedTags", []);
+  const [selectedCategories, setSelectedCategories] = usePersistentState<number[]>("selectedCategories", []);
   const [tags, setTags] = useState<Tag[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchMode, setSearchMode] = useState<'database' | 'local'>('database');
   const [hasLoadedInstructions, setHasLoadedInstructions] = useState(false);
 
-  // Load initial data and restore state from localStorage
+  // Load available tags and categories
   useEffect(() => {
+    let isMounted = true;
+
     const loadInitialData = async () => {
       try {
         // Fetch tags and categories
@@ -35,39 +29,25 @@ const Search = () => {
           supabase.from("categories").select("*").order("name")
         ]);
 
-        if (tagsResult.data) setTags(tagsResult.data);
-        if (categoriesResult.data) setCategories(categoriesResult.data);
-
-        // Restore state from localStorage
-        const savedSearch = localStorage.getItem("instructionSearch");
-        const savedTags = localStorage.getItem("selectedTags");
-        const savedCategories = localStorage.getItem("selectedCategories");
-
-        if (savedSearch) setSearchQuery(savedSearch);
-        if (savedTags) setSelectedTags(JSON.parse(savedTags));
-        if (savedCategories) setSelectedCategories(JSON.parse(savedCategories));
+        if (isMounted) {
+          if (tagsResult.data) setTags(tagsResult.data);
+          if (categoriesResult.data) setCategories(categoriesResult.data);
+        }
       } catch (error) {
         console.error("Error loading initial data:", error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadInitialData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
-
-  // Save state to localStorage
-  useEffect(() => {
-    localStorage.setItem("instructionSearch", searchQuery);
-  }, [searchQuery]);
-
-  useEffect(() => {
-    localStorage.setItem("selectedTags", JSON.stringify(selectedTags));
-  }, [selectedTags]);
-
-  useEffect(() => {
-    localStorage.setItem("selectedCategories", JSON.stringify(selectedCategories));
-  }, [selectedCategories]);
 
   const handleClearFilters = () => {
     setSearchQuery("");

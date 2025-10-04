@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { InstructionCard } from "@/components/InstructionCard";
 import { Button } from "@/components/ui/button";
 import { Loader2, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Category, Tag } from "@/types/filters";
 
 interface Instruction {
   id: number;
@@ -16,13 +17,48 @@ interface InstructionsListProps {
   searchQuery: string;
   selectedTags: number[];
   selectedCategories: number[];
-  tags: { id: number; name: string }[];
-  categories: { id: number; name: string }[];
+  tags: Tag[];
+  categories: Category[];
   searchMode: 'database' | 'local';
   onInstructionsLoaded: (hasInstructions: boolean) => void;
 }
 
 const ITEMS_PER_PAGE = 20;
+
+type RawInstruction = {
+  instruction_id: number;
+  text: string;
+  tags?: string[];
+  categories?: string[];
+};
+
+const transformInstructionData = (data: RawInstruction[]): Instruction[] =>
+  data.map((item) => ({
+    id: item.instruction_id,
+    text: item.text,
+    authors: null,
+    instruction_tags:
+      item.tags?.map((tag, tagIndex) => ({
+        tags: { id: `${item.instruction_id}-tag-${tagIndex}`, name: tag },
+      })) ?? [],
+    instruction_categories:
+      item.categories?.map((category, categoryIndex) => ({
+        categories: {
+          id: `${item.instruction_id}-cat-${categoryIndex}`,
+          name: category,
+        },
+      })) ?? [],
+  }));
+
+const buildFilterNames = (
+  selectedIds: number[],
+  options: Array<{ id: number; name: string }>,
+) =>
+  selectedIds.length > 0
+    ? options
+        .filter(option => selectedIds.includes(option.id))
+        .map(option => option.name)
+    : [];
 
 export const InstructionsList = ({
   searchQuery,
@@ -34,7 +70,8 @@ export const InstructionsList = ({
   onInstructionsLoaded,
 }: InstructionsListProps) => {
   const [instructions, setInstructions] = useState<Instruction[]>([]);
-  const [allInstructions, setAllInstructions] = useState<Instruction[]>([]); // Store all loaded instructions for local filtering
+  const [allInstructions, setAllInstructions] = useState<Instruction[]>([]);
+  // Store all loaded instructions for local filtering
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -42,19 +79,26 @@ export const InstructionsList = ({
   const [error, setError] = useState<string | null>(null);
 
   // Filter instructions locally when in local mode
-  const filterInstructionsLocally = (searchTerm: string, tagFilters: number[], categoryFilters: number[]) => {
+  const filterInstructionsLocally = useCallback((
+    searchTerm: string,
+    tagFilters: number[],
+    categoryFilters: number[],
+  ) => {
     if (!allInstructions.length) return [];
-    
+
     return allInstructions.filter(instruction => {
-      const matchesSearch = !searchTerm || instruction.text.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesTags = tagFilters.length === 0 || 
+      const matchesSearch =
+        !searchTerm || instruction.text.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesTags =
+        tagFilters.length === 0 ||
         instruction.instruction_tags.some(it => tagFilters.includes(Number(it.tags.id)));
-      const matchesCategories = categoryFilters.length === 0 || 
+      const matchesCategories =
+        categoryFilters.length === 0 ||
         instruction.instruction_categories.some(ic => categoryFilters.includes(Number(ic.categories.id)));
-      
+
       return matchesSearch && matchesTags && matchesCategories;
     });
-  };
+  }, [allInstructions]);
 
   // Reset pagination when filters change or mode changes
   useEffect(() => {
@@ -69,20 +113,59 @@ export const InstructionsList = ({
       setInstructions(filtered);
       setHasMore(false); // No pagination for local filtering
     }
-  }, [searchQuery, selectedTags, selectedCategories, searchMode]);
+  }, [filterInstructionsLocally, searchMode, searchQuery, selectedCategories, selectedTags]);
 
   // Fetch instructions only in database mode
   useEffect(() => {
     if (searchMode === 'database') {
       fetchInstructions(page === 0);
     }
-  }, [searchQuery, selectedTags, selectedCategories, page, searchMode]);
+  }, [fetchInstructions, page, searchMode]);
 
   // Remove allInstructions from the first useEffect dependency to prevent flickering
 
-  const fetchInstructions = async (isFirstPage = false) => {
+  const applyFetchedInstructions = useCallback(
+    (data: RawInstruction[] | null, isInitialPage: boolean) => {
+      if (!data || data.length === 0) {
+        if (isInitialPage) {
+          setInstructions([]);
+          setAllInstructions([]);
+          onInstructionsLoaded(false);
+        }
+
+        setHasMore(false);
+        return;
+      }
+
+      const transformedData = transformInstructionData(data);
+      const hasMoreItems = transformedData.length > ITEMS_PER_PAGE;
+      const itemsToShow = hasMoreItems
+        ? transformedData.slice(0, ITEMS_PER_PAGE)
+        : transformedData;
+
+      if (isInitialPage) {
+        setInstructions(itemsToShow);
+        setAllInstructions(itemsToShow);
+        onInstructionsLoaded(itemsToShow.length > 0);
+      } else {
+        setInstructions(prev => [...prev, ...itemsToShow]);
+        setAllInstructions(prev => [...prev, ...itemsToShow]);
+      }
+
+      setHasMore(hasMoreItems);
+    },
+    [onInstructionsLoaded],
+  );
+
+  const fetchInstructions = useCallback(async (isFirstPage = false) => {
+    const isInitialPage = isFirstPage || page === 0;
+
     try {
-      if (isFirstPage) {
+      if (isInitialPage) {
+        setError(null);
+      }
+
+      if (isInitialPage) {
         setIsLoading(true);
       } else {
         setIsLoadingMore(true);
@@ -100,41 +183,11 @@ export const InstructionsList = ({
           throw fetchError;
         }
 
-        if (data) {
-          // Transform the data to match the expected format
-          const transformedData = data.map((item: any, index: number) => ({
-            id: item.instruction_id,
-            text: item.text,
-            authors: null, // Authors not included in the random function yet
-            instruction_tags: item.tags?.map((tag: string, tagIndex: number) => ({ 
-              tags: { id: `${item.instruction_id}-tag-${tagIndex}`, name: tag } 
-            })) || [],
-            instruction_categories: item.categories?.map((cat: string, catIndex: number) => ({ 
-              categories: { id: `${item.instruction_id}-cat-${catIndex}`, name: cat } 
-            })) || []
-          }));
-
-          // Check if we have more items than requested
-          const hasMoreItems = transformedData.length > ITEMS_PER_PAGE;
-          const itemsToShow = hasMoreItems ? transformedData.slice(0, ITEMS_PER_PAGE) : transformedData;
-
-          if (isFirstPage || page === 0) {
-            setInstructions(itemsToShow);
-            setAllInstructions(itemsToShow); // Store for local filtering
-            onInstructionsLoaded(itemsToShow.length > 0);
-          } else {
-            setInstructions(prev => [...prev, ...itemsToShow]);
-            setAllInstructions(prev => [...prev, ...itemsToShow]); // Append to stored instructions
-          }
-          
-          setHasMore(hasMoreItems);
-        }
+        applyFetchedInstructions(data as RawInstruction[] | null, isInitialPage);
       } else {
         // Use the secure search function when filters are applied
-        const tagNames = selectedTags.length > 0 ? 
-          tags.filter(tag => selectedTags.includes(tag.id)).map(tag => tag.name) : [];
-        const categoryNames = selectedCategories.length > 0 ? 
-          categories.filter(cat => selectedCategories.includes(cat.id)).map(cat => cat.name) : [];
+        const tagNames = buildFilterNames(selectedTags, tags);
+        const categoryNames = buildFilterNames(selectedCategories, categories);
 
         const { data, error: fetchError } = await supabase.rpc('search_instructions_secure', {
           search_term: searchQuery.trim(),
@@ -147,35 +200,7 @@ export const InstructionsList = ({
           throw fetchError;
         }
 
-        if (data) {
-          // Transform the data to match the expected format
-          const transformedData = data.map((item: any, index: number) => ({
-            id: item.instruction_id,
-            text: item.text,
-            authors: null, // Authors not included in the search function yet
-            instruction_tags: item.tags?.map((tag: string, tagIndex: number) => ({ 
-              tags: { id: `${item.instruction_id}-tag-${tagIndex}`, name: tag } 
-            })) || [],
-            instruction_categories: item.categories?.map((cat: string, catIndex: number) => ({ 
-              categories: { id: `${item.instruction_id}-cat-${catIndex}`, name: cat } 
-            })) || []
-          }));
-
-          // Check if we have more items than requested
-          const hasMoreItems = transformedData.length > ITEMS_PER_PAGE;
-          const itemsToShow = hasMoreItems ? transformedData.slice(0, ITEMS_PER_PAGE) : transformedData;
-
-          if (isFirstPage || page === 0) {
-            setInstructions(itemsToShow);
-            setAllInstructions(itemsToShow); // Store for local filtering
-            onInstructionsLoaded(itemsToShow.length > 0);
-          } else {
-            setInstructions(prev => [...prev, ...itemsToShow]);
-            setAllInstructions(prev => [...prev, ...itemsToShow]); // Append to stored instructions
-          }
-
-          setHasMore(hasMoreItems);
-        }
+        applyFetchedInstructions(data as RawInstruction[] | null, isInitialPage);
       }
     } catch (err) {
       console.error("Error fetching instructions:", err);
@@ -184,7 +209,7 @@ export const InstructionsList = ({
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  };
+  }, [applyFetchedInstructions, categories, page, selectedCategories, selectedTags, searchQuery, tags]);
 
   const loadMore = () => {
     if (!isLoadingMore && hasMore) {
