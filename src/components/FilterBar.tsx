@@ -9,16 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-interface Tag {
-  id: number;
-  name: string;
-}
-
-interface Category {
-  id: number;
-  name: string;
-}
+import type { Category, Tag } from "@/types/filters";
 
 interface FilterBarProps {
   tags: Tag[];
@@ -41,20 +32,24 @@ export const FilterBar = ({
 }: FilterBarProps) => {
   const hasActiveFilters = selectedTags.length > 0 || selectedCategories.length > 0;
 
+  const toggleSelection = (
+    id: number,
+    selected: number[],
+    onChange: (ids: number[]) => void,
+  ) => {
+    onChange(
+      selected.includes(id)
+        ? selected.filter(existingId => existingId !== id)
+        : [...selected, id],
+    );
+  };
+
   const handleTagToggle = (tagId: number) => {
-    if (selectedTags.includes(tagId)) {
-      onTagsChange(selectedTags.filter(id => id !== tagId));
-    } else {
-      onTagsChange([...selectedTags, tagId]);
-    }
+    toggleSelection(tagId, selectedTags, onTagsChange);
   };
 
   const handleCategoryToggle = (categoryId: number) => {
-    if (selectedCategories.includes(categoryId)) {
-      onCategoriesChange(selectedCategories.filter(id => id !== categoryId));
-    } else {
-      onCategoriesChange([...selectedCategories, categoryId]);
-    }
+    toggleSelection(categoryId, selectedCategories, onCategoriesChange);
   };
 
   const removeTag = (tagId: number) => {
