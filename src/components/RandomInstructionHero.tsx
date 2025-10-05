@@ -499,7 +499,7 @@ export const RandomInstructionHero = () => {
             {/* Database Context */}
             {totalInstructionsInDB && (
               <p className="text-xs text-muted-foreground">
-                {totalInstructionsInDB.toLocaleString()} total instructions available
+                {totalInstructionsInDB.toLocaleString()} awsome instructions available
               </p>
             )}
           </div>
