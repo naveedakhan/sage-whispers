@@ -57,16 +57,14 @@ const Search = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-12 bg-muted rounded mb-4"></div>
-            <div className="h-16 bg-muted rounded mb-8"></div>
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-24 bg-muted rounded"></div>
-              ))}
-            </div>
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="animate-pulse">
+          <div className="h-12 bg-muted rounded mb-4"></div>
+          <div className="h-16 bg-muted rounded mb-8"></div>
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-24 bg-muted rounded"></div>
+            ))}
           </div>
         </div>
       </div>
@@ -74,57 +72,55 @@ const Search = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <header className="mb-8">
-          <div className="mb-6">
-            <AppNavigation showBackToHome={true} />
-          </div>
-          
-          {/* Page Title */}
-          <div className="text-center max-w-2xl mx-auto">
-            <h1 className="text-3xl md:text-4xl font-bold text-primary mb-3">
-              Search Instructions
-            </h1>
-            <p className="text-base md:text-lg text-muted-foreground">
-              Find the perfect instruction for any situation. Search through thousands of life lessons and practical guidance.
-            </p>
-          </div>
-        </header>
-
-        {/* Search and Filters */}
-        <div className="mb-12 space-y-6 relative">
-          <SearchInput 
-            value={searchQuery} 
-            onChange={setSearchQuery}
-            searchMode={searchMode}
-            onSearchModeChange={setSearchMode}
-            hasLoadedInstructions={hasLoadedInstructions}
-          />
-        
-          <FilterBar
-            tags={tags}
-            categories={categories}
-            selectedTags={selectedTags}
-            selectedCategories={selectedCategories}
-            onTagsChange={setSelectedTags}
-            onCategoriesChange={setSelectedCategories}
-            onClearFilters={handleClearFilters}
-          />
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
+      <header className="mb-8">
+        <div className="mb-6">
+          <AppNavigation showBackToHome={true} />
         </div>
+        
+        {/* Page Title */}
+        <div className="text-center max-w-2xl mx-auto">
+          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-3">
+            Search Instructions
+          </h1>
+          <p className="text-base md:text-lg text-muted-foreground">
+            Find the perfect instruction for any situation. Search through thousands of life lessons and practical guidance.
+          </p>
+        </div>
+      </header>
 
-        {/* Instructions List */}
-        <InstructionsList
-          searchQuery={searchQuery}
-          selectedTags={selectedTags}
-          selectedCategories={selectedCategories}
+      {/* Search and Filters */}
+      <div className="mb-12 space-y-6 relative">
+        <SearchInput 
+          value={searchQuery} 
+          onChange={setSearchQuery}
+          searchMode={searchMode}
+          onSearchModeChange={setSearchMode}
+          hasLoadedInstructions={hasLoadedInstructions}
+        />
+      
+        <FilterBar
           tags={tags}
           categories={categories}
-          searchMode={searchMode}
-          onInstructionsLoaded={setHasLoadedInstructions}
+          selectedTags={selectedTags}
+          selectedCategories={selectedCategories}
+          onTagsChange={setSelectedTags}
+          onCategoriesChange={setSelectedCategories}
+          onClearFilters={handleClearFilters}
         />
       </div>
+
+      {/* Instructions List */}
+      <InstructionsList
+        searchQuery={searchQuery}
+        selectedTags={selectedTags}
+        selectedCategories={selectedCategories}
+        tags={tags}
+        categories={categories}
+        searchMode={searchMode}
+        onInstructionsLoaded={setHasLoadedInstructions}
+      />
     </div>
   );
 };

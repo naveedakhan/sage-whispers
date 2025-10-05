@@ -21,19 +21,21 @@ const AppContent = () => {
   useScrollToTop();
 
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/copyright" element={<Copyright />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+    <div className="min-h-dvh flex flex-col bg-background">
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/copyright" element={<Copyright />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
       <ScrollToTopButton />
       <Footer />
-    </>
+    </div>
   );
 };
 
