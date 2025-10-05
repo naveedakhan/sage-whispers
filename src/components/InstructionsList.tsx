@@ -115,15 +115,6 @@ export const InstructionsList = ({
     }
   }, [filterInstructionsLocally, searchMode, searchQuery, selectedCategories, selectedTags]);
 
-  // Fetch instructions only in database mode
-  useEffect(() => {
-    if (searchMode === 'database') {
-      fetchInstructions(page === 0);
-    }
-  }, [fetchInstructions, page, searchMode]);
-
-  // Remove allInstructions from the first useEffect dependency to prevent flickering
-
   const applyFetchedInstructions = useCallback(
     (data: RawInstruction[] | null, isInitialPage: boolean) => {
       if (!data || data.length === 0) {
@@ -210,6 +201,13 @@ export const InstructionsList = ({
       setIsLoadingMore(false);
     }
   }, [applyFetchedInstructions, categories, page, selectedCategories, selectedTags, searchQuery, tags]);
+
+  // Fetch instructions only in database mode
+  useEffect(() => {
+    if (searchMode === 'database') {
+      fetchInstructions(page === 0);
+    }
+  }, [fetchInstructions, page, searchMode]);
 
   const loadMore = () => {
     if (!isLoadingMore && hasMore) {

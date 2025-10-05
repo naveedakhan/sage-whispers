@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { X, Filter, Tag, Folder } from "lucide-react";
+import { X, Filter, Tag as TagIcon, Folder } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -9,10 +9,10 @@ import {
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { Category, Tag } from "@/types/filters";
+import type { Category, Tag as TagType } from "@/types/filters";
 
 interface FilterBarProps {
-  tags: Tag[];
+  tags: TagType[];
   categories: Category[];
   selectedTags: number[];
   selectedCategories: number[];
@@ -68,7 +68,7 @@ export const FilterBar = ({
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="h-8">
-                <Tag className="w-4 h-4 mr-2" />
+              <TagIcon className="w-4 h-4 mr-2" />
                 Tags
                 {selectedTags.length > 0 && (
                   <Badge variant="secondary" className="ml-2 h-5">
@@ -170,7 +170,7 @@ export const FilterBar = ({
                   variant="secondary"
                   className="gap-1"
                 >
-                  <Tag className="w-3 h-3" />
+                  <TagIcon className="w-3 h-3" />
                   {tag.name}
                   <button
                     onClick={() => removeTag(tagId)}
