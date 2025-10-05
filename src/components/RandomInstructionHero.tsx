@@ -76,6 +76,19 @@ export const RandomInstructionHero = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [history, setHistory] = useState<Instruction[]>([]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(0);
+  const [totalInstructionsInDB, setTotalInstructionsInDB] = useState<number | null>(null);
+
+  // Fetch total instruction count from database
+  const fetchTotalInstructionCount = async () => {
+    try {
+      const { count } = await supabase
+        .from('instructions')
+        .select('*', { count: 'exact', head: true });
+      setTotalInstructionsInDB(count);
+    } catch (error) {
+      console.error('Failed to fetch total instruction count:', error);
+    }
+  };
 
   const fetchRandomInstruction = async (forceRefresh = false) => {
     try {
@@ -108,7 +121,7 @@ export const RandomInstructionHero = () => {
           
           // Add to history if this is the first instruction
           if (history.length === 0) {
-            addToHistory(data);
+            addToHistory(data, false); // Not a new instruction, just loading cached
           }
           
           setIsLoading(false);
@@ -143,7 +156,7 @@ export const RandomInstructionHero = () => {
           });
           
           // Always add to history when generating a new instruction
-          addToHistory(randomData);
+          addToHistory(randomData, true); // This is a new instruction
           
           // Cache the new instruction
           safeSetCookie("dailyRandomId", randomData.id.toString(), 1);
@@ -192,6 +205,9 @@ export const RandomInstructionHero = () => {
     setHistory(savedHistory);
     setCurrentHistoryIndex(savedIndex !== null ? savedIndex : (savedHistory.length > 0 ? savedHistory.length - 1 : 0));
 
+    // Fetch total instruction count
+    fetchTotalInstructionCount();
+
     // Check if there's a shared instruction ID in the URL
     const urlParams = new URLSearchParams(window.location.search);
     const instructionId = urlParams.get('instruction');
@@ -233,7 +249,7 @@ export const RandomInstructionHero = () => {
         setInstruction(instructionWithFlag);
         
         // Add to history (will preserve existing history and append)
-        addToHistory(instructionWithFlag);
+        addToHistory(instructionWithFlag, false); // Not a new instruction, just loading shared
         
         // Update URL to reflect the shared instruction
         updateURL(data.id);
@@ -261,12 +277,15 @@ export const RandomInstructionHero = () => {
     }
   };
 
-  const addToHistory = (newInstruction: Instruction) => {
+  const addToHistory = (newInstruction: Instruction, isNewInstruction = false) => {
     console.log('addToHistory called with:', { 
       newInstructionId: newInstruction.id, 
       currentHistoryLength: history.length, 
-      currentHistoryIndex 
+      currentHistoryIndex,
+      isNewInstruction
     });
+    
+    // Session counter is now handled by history length in the display
     
     setHistory(prevHistory => {
       setCurrentHistoryIndex(prevIndex => {
@@ -289,21 +308,25 @@ export const RandomInstructionHero = () => {
           return prevIndex;
         }
         
-        // If we're not at the end of history, truncate everything after current position
+        // Always add new instructions to the end of history (don't truncate)
         let updatedHistory: Instruction[];
-        if (prevIndex < prevHistory.length - 1) {
-          console.log('Truncating history after current position');
-          updatedHistory = [...prevHistory.slice(0, prevIndex + 1), newInstruction];
-        } else {
-          console.log('Adding to end of history');
-          // If we're at the end, just add the new instruction
+        if (isNewInstruction) {
+          console.log('Adding new instruction to end of history');
+          // For new instructions, always append to the end
           updatedHistory = [...prevHistory, newInstruction];
+        } else {
+          // For navigation (back/forward), keep existing logic
+          if (prevIndex < prevHistory.length - 1) {
+            console.log('Navigation: truncating history after current position');
+            updatedHistory = [...prevHistory.slice(0, prevIndex + 1), newInstruction];
+          } else {
+            console.log('Navigation: adding to end of history');
+            updatedHistory = [...prevHistory, newInstruction];
+          }
         }
         
-        // Limit history to 20 instructions
-        if (updatedHistory.length > 20) {
-          updatedHistory = updatedHistory.slice(-20);
-        }
+        // No artificial limit - keep all session history for proper counter
+        // This allows users to browse through their entire session
 
         console.log('Updated history:', { 
           oldLength: prevHistory.length, 
@@ -314,8 +337,13 @@ export const RandomInstructionHero = () => {
         // Update the parent history state
         setHistory(updatedHistory);
         
-        // Return the new index
-        return updatedHistory.length - 1;
+        // For new instructions, always position at the end
+        // For navigation, return the calculated index
+        if (isNewInstruction) {
+          return updatedHistory.length - 1;
+        } else {
+          return updatedHistory.length - 1;
+        }
       });
       
       // This will be overridden by the setHistory call above, but we need to return something
@@ -461,12 +489,20 @@ export const RandomInstructionHero = () => {
             </Button>
           </div>
           
-          {/* History indicator */}
-          {history.length > 0 && (
-            <p className="text-sm text-muted-foreground">
+          {/* Single Counter Display */}
+          <div className="space-y-1 text-center">
+            {/* Main Counter - Shows current position in history */}
+            <p className="text-lg font-semibold text-primary">
               {currentHistoryIndex + 1} of {history.length}
             </p>
-          )}
+            
+            {/* Database Context */}
+            {totalInstructionsInDB && (
+              <p className="text-xs text-muted-foreground">
+                {totalInstructionsInDB.toLocaleString()} total instructions available
+              </p>
+            )}
+          </div>
           
           <ShareButtons 
             text={`"${instruction.text}"${instruction.authors ? ` — ${instruction.authors.name}` : ''}`}
