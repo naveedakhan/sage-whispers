@@ -1,8 +1,15 @@
 import { AppNavigation } from "@/components/AppNavigation";
+import SEO from "@/components/SEO";
 
 const Terms = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <SEO 
+        title="Terms of Service"
+        description="Terms of Service for Daily Wisdom - Life's Little Instruction Engine. Read our terms and conditions for using our service."
+        canonical="https://www.daily-wisdom.com/terms"
+      />
+      <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <header className="mb-12">
           <div className="mb-6">
@@ -98,7 +105,8 @@ const Terms = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

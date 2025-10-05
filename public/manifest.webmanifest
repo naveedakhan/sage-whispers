@@ -1,0 +1,31 @@
+{
+  "name": "Daily Wisdom",
+  "short_name": "Daily Wisdom",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#b47b2b",
+  "description": "Life's Little Instruction Engine — Discover timeless wisdom and practical guidance for living a fulfilling life.",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["education", "lifestyle", "productivity"],
+  "lang": "en",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "id": "daily-wisdom-app"
+}

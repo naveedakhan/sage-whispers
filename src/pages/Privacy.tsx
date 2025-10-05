@@ -1,8 +1,15 @@
 import { AppNavigation } from "@/components/AppNavigation";
+import SEO from "@/components/SEO";
 
 const Privacy = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <SEO 
+        title="Privacy Policy"
+        description="Privacy Policy for Daily Wisdom - Life's Little Instruction Engine. Learn how we protect your privacy and handle your data."
+        canonical="https://www.daily-wisdom.com/privacy"
+      />
+      <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <header className="mb-12">
           <div className="mb-6">
@@ -89,7 +96,8 @@ const Privacy = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

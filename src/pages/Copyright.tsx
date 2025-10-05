@@ -1,8 +1,15 @@
 import { AppNavigation } from "@/components/AppNavigation";
+import SEO from "@/components/SEO";
 
 const Copyright = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <SEO 
+        title="Copyright"
+        description="Copyright information for Daily Wisdom - Life's Little Instruction Engine. Learn about our content usage policies and intellectual property rights."
+        canonical="https://www.daily-wisdom.com/copyright"
+      />
+      <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <header className="mb-12">
           <div className="mb-6">
@@ -60,7 +67,8 @@ const Copyright = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

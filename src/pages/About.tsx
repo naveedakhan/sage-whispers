@@ -1,8 +1,15 @@
 import { AppNavigation } from "@/components/AppNavigation";
+import SEO from "@/components/SEO";
 
 const About = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <SEO 
+        title="About"
+        description="Learn about Daily Wisdom - Life's Little Instruction Engine. Discover our mission to provide timeless wisdom and practical guidance for living a fulfilling life."
+        canonical="https://www.daily-wisdom.com/about"
+      />
+      <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <header className="mb-12">
           <div className="mb-6">
@@ -58,7 +65,8 @@ const About = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

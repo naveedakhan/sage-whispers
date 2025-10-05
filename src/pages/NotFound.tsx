@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { AppNavigation } from "@/components/AppNavigation";
+import SEO from "@/components/SEO";
 import { Home, Search, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -8,6 +9,12 @@ const NotFound = () => {
   const navigate = useNavigate();
 
   return (
+    <>
+      <SEO 
+        title="Page Not Found"
+        description="The page you're looking for doesn't exist. Return to Daily Wisdom to discover timeless wisdom and life instructions."
+        noIndex={true}
+      />
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <header className="mb-12">
@@ -67,7 +74,8 @@ const NotFound = () => {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

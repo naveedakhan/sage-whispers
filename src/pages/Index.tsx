@@ -1,12 +1,31 @@
 import { RandomInstructionHero } from "@/components/RandomInstructionHero";
 import { AppNavigation } from "@/components/AppNavigation";
 import { Link } from "react-router-dom";
+import SEO from "@/components/SEO";
 import posterImage from "@/assets/poster.png";
 
 const Index = () => {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Daily Wisdom",
+    "url": "https://www.daily-wisdom.com",
+    "description": "Life's Little Instruction Engine — Discover timeless wisdom and practical guidance for living a fulfilling life.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.daily-wisdom.com/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      <SEO 
+        title="Daily Wisdom"
+        description="Life's Little Instruction Engine — Discover timeless wisdom and practical guidance for living a fulfilling life. Search through thousands of life instructions to find exactly what you need."
+        structuredData={structuredData}
+      />
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <header className="py-6">
         <div className="mb-6">
@@ -56,7 +75,8 @@ const Index = () => {
           </Link>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

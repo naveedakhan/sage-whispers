@@ -3,6 +3,7 @@ import { InstructionsList } from "@/components/InstructionsList";
 import { SearchInput } from "@/components/SearchInput";
 import { FilterBar } from "@/components/FilterBar";
 import { AppNavigation } from "@/components/AppNavigation";
+import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import type { Category, Tag } from "@/types/filters";
@@ -72,7 +73,13 @@ const Search = () => {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
+      <SEO 
+        title="Search Instructions"
+        description="Find the perfect instruction for any situation. Search through thousands of life lessons and practical guidance on Daily Wisdom."
+        canonical="https://www.daily-wisdom.com/search"
+      />
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <header className="mb-8">
         <div className="mb-6">
@@ -121,7 +128,8 @@ const Search = () => {
         searchMode={searchMode}
         onInstructionsLoaded={setHasLoadedInstructions}
       />
-    </div>
+      </div>
+    </>
   );
 };
 
