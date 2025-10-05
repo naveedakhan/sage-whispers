@@ -1,0 +1,40 @@
+{
+  "site": "Daily Wisdom",
+  "base_url": "https://www.daily-wisdom.com",
+  "description": "Life's Little Instruction Engine — Discover timeless wisdom and practical guidance for living a fulfilling life.",
+  "docs": [
+    {
+      "url": "/",
+      "title": "Daily Wisdom — Home",
+      "updated_at": "2025-10-05T11:49:33.574Z",
+      "tags": [
+        "home",
+        "wisdom",
+        "life-instructions",
+        "guidance"
+      ]
+    },
+    {
+      "url": "/search",
+      "title": "Search Instructions",
+      "updated_at": "2025-10-05T11:49:33.574Z",
+      "tags": [
+        "search",
+        "instructions",
+        "filters",
+        "categories"
+      ]
+    },
+    {
+      "url": "/about",
+      "title": "About Daily Wisdom",
+      "updated_at": "2025-10-05T11:49:33.574Z",
+      "tags": [
+        "about",
+        "mission",
+        "philosophy",
+        "content-quality"
+      ]
+    }
+  ]
+}

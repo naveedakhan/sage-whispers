@@ -13,6 +13,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Copyright from "./pages/Copyright";
 import NotFound from "./pages/NotFound";
+import PlainText from "./pages/PlainText";
 import ScrollReset from "@/components/ScrollReset";
 import { Footer } from "@/components/Footer";
 
@@ -31,6 +32,7 @@ const AppContent = () => {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/copyright" element={<Copyright />} />
+          <Route path="/plain" element={<PlainText />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

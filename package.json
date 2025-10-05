@@ -9,8 +9,11 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate:sitemap": "node scripts/generate-sitemap.js",
-    "verify:seo": "node scripts/verify-seo.js"
+    "generate:sitemap": "node scripts/generate-sitemap.mjs",
+    "build:ai": "node scripts/build-ai-exports.mjs",
+    "postbuild": "node scripts/build-ai-exports.mjs && node scripts/generate-sitemap.mjs",
+    "verify:seo": "node scripts/verify-seo.js",
+    "verify:llm": "node scripts/verify-llm-readiness.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
