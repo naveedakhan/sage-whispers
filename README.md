@@ -1,73 +1,101 @@
-# Welcome to your Lovable project
+# Life's Little Instruction Engine
 
-## Project info
+A modern web application that provides timeless wisdom and practical guidance for living a fulfilling life. Search through thousands of curated life instructions to find exactly what you need.
 
-**URL**: https://lovable.dev/projects/8de9ee05-31f1-4505-9e29-cad7b4efb50b
+## Features
 
-## How can I edit this code?
+- **Random Daily Instructions**: Discover new wisdom every day
+- **Advanced Search**: Find specific instructions by tags, categories, or keywords
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Modern UI**: Built with shadcn/ui components and Tailwind CSS
 
-There are several ways of editing your application.
+## Technologies Used
 
-**Use Lovable**
+This project is built with modern web technologies:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8de9ee05-31f1-4505-9e29-cad7b4efb50b) and start prompting.
+- **Vite** - Fast build tool and development server
+- **TypeScript** - Type-safe JavaScript
+- **React 18** - Modern React with hooks and concurrent features
+- **React Router** - Client-side routing
+- **shadcn/ui** - Beautiful, accessible UI components
+- **Tailwind CSS** - Utility-first CSS framework
+- **Supabase** - Backend-as-a-Service for database and authentication
+- **Lucide React** - Beautiful icons
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started
 
-**Use your preferred IDE**
+### Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js (version 18 or higher)
+- npm or yarn package manager
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Installation
 
-Follow these steps:
+1. Clone the repository:
+```bash
+git clone <YOUR_REPOSITORY_URL>
+cd sage-whispers
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+2. Install dependencies:
+```bash
+npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+3. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+4. Open your browser and navigate to `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Available Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` - Start the development server
+- `npm run build` - Build the project for production
+- `npm run preview` - Preview the production build
+- `npm run lint` - Run ESLint for code quality
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Project Structure
 
-## What technologies are used for this project?
+```
+src/
+├── components/     # Reusable UI components
+├── pages/         # Page components
+├── hooks/         # Custom React hooks
+├── lib/           # Utility functions
+├── types/         # TypeScript type definitions
+├── utils/         # Helper functions
+└── integrations/  # External service integrations
+```
 
-This project is built with:
+## Deployment
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+This project can be deployed to various platforms:
 
-## How can I deploy this project?
+- **Vercel** - Recommended for easy deployment
+- **Netlify** - Great for static sites
+- **GitHub Pages** - Free hosting for public repositories
 
-Simply open [Lovable](https://lovable.dev/projects/8de9ee05-31f1-4505-9e29-cad7b4efb50b) and click on Share -> Publish.
+### Environment Variables
 
-## Can I connect a custom domain to my Lovable project?
+Make sure to set up your environment variables for production:
 
-Yes, you can!
+- `VITE_SUPABASE_URL` - Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Your Supabase anonymous key
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Contributing
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+If you have any questions or need help, please open an issue on GitHub.

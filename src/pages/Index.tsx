@@ -1,7 +1,7 @@
 import { RandomInstructionHero } from "@/components/RandomInstructionHero";
 import { AppNavigation } from "@/components/AppNavigation";
 import { Link } from "react-router-dom";
-const posterImage = "/lovable-uploads/0361c2d5-17d6-4050-ab2a-aefaf3a157b0.png";
+import posterImage from "@/assets/poster.png";
 
 const Index = () => {
 
