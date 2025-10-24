@@ -3,7 +3,14 @@
 DROP FUNCTION IF EXISTS public.get_random_instructions(integer);
 
 CREATE OR REPLACE FUNCTION public.get_random_instructions(result_limit integer DEFAULT 20)
-RETURNS TABLE(instruction_id integer, text text, source_id integer, tags text[], categories text[])
+RETURNS TABLE(
+    instruction_id integer,
+    text text,
+    source_id integer,
+    author_name text,
+    tags text[],
+    categories text[]
+)
 LANGUAGE plpgsql
 VOLATILE SECURITY DEFINER
 AS $function$
@@ -23,14 +30,16 @@ BEGIN
         i.id as instruction_id,
         i.text,
         i.source_id,
+        a.name as author_name,
         ARRAY_AGG(DISTINCT t.name) FILTER (WHERE t.name IS NOT NULL) as tags,
         ARRAY_AGG(DISTINCT c.name) FILTER (WHERE c.name IS NOT NULL) as categories
     FROM public.instructions i
+    LEFT JOIN public.authors a ON i.author_id = a.id
     LEFT JOIN public.instruction_tags it ON i.id = it.instruction_id
     LEFT JOIN public.tags t ON it.tag_id = t.id
     LEFT JOIN public.instruction_categories ic ON i.id = ic.instruction_id
     LEFT JOIN public.categories c ON ic.category_id = c.id
-    GROUP BY i.id, i.text, i.source_id
+    GROUP BY i.id, i.text, i.source_id, a.name
     ORDER BY RANDOM()
     LIMIT result_limit;
 END;

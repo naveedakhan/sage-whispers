@@ -20,7 +20,11 @@ const SEO: React.FC<SEOProps> = ({
   structuredData
 }) => {
   const fullTitle = title === 'Daily Wisdom' ? title : `${title} | Daily Wisdom`;
-  const fullCanonical = canonical || `https://www.daily-wisdom.com${window.location.pathname}`;
+  const pathname =
+    typeof window !== "undefined" && window.location
+      ? window.location.pathname
+      : "/";
+  const fullCanonical = canonical || `https://www.daily-wisdom.com${pathname}`;
 
   return (
     <Helmet>

@@ -4,9 +4,17 @@ CREATE OR REPLACE FUNCTION public.search_instructions_secure(
     search_term text DEFAULT ''::text, 
     tag_filters text[] DEFAULT '{}'::text[], 
     category_filters text[] DEFAULT '{}'::text[], 
-    result_limit integer DEFAULT 50
+    result_limit integer DEFAULT 50,
+    result_offset integer DEFAULT 0
 )
-RETURNS TABLE(instruction_id integer, text text, source_id integer, tags text[], categories text[])
+RETURNS TABLE(
+    instruction_id integer,
+    text text,
+    source_id integer,
+    author_name text,
+    tags text[],
+    categories text[]
+)
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $function$
@@ -19,6 +27,10 @@ BEGIN
     IF result_limit > 100 THEN
         result_limit := 100; -- Cap at 100 results
     END IF;
+
+    IF result_offset < 0 THEN
+        result_offset := 0;
+    END IF;
     
     -- Log search event (basic monitoring)
     PERFORM public.log_security_event('search', NULL, NULL, 
@@ -30,6 +42,7 @@ BEGIN
         i.id as instruction_id,
         i.text,
         i.source_id,
+        a.name as author_name,
         ARRAY_AGG(DISTINCT t.name) FILTER (WHERE t.name IS NOT NULL) as tags,
         ARRAY_AGG(DISTINCT c.name) FILTER (WHERE c.name IS NOT NULL) as categories
     FROM public.instructions i
@@ -69,7 +82,7 @@ BEGIN
                 WHERE c_inner.name = ANY(category_filters)
             )
         )
-    GROUP BY i.id, i.text, i.source_id
-    LIMIT result_limit;
+    GROUP BY i.id, i.text, i.source_id, a.name
+    LIMIT result_limit OFFSET result_offset;
 END;
 $function$

@@ -72,13 +72,23 @@ class RateLimiter {
 
 export const searchRateLimiter = new RateLimiter(30, 60000); // 30 searches per minute
 
+let fallbackSessionId: string | null = null;
+
 export const createRateLimitKey = (): string => {
-  // Use a combination of IP-like identifier and session
-  // In a browser environment, we'll use a simple session-based approach
-  let sessionId = sessionStorage.getItem('search_session_id');
-  if (!sessionId) {
-    sessionId = Math.random().toString(36).substring(2, 15);
-    sessionStorage.setItem('search_session_id', sessionId);
+  if (typeof window !== "undefined" && window.sessionStorage) {
+    // Use a combination of IP-like identifier and session
+    // In a browser environment, we'll use a simple session-based approach
+    let sessionId = window.sessionStorage.getItem("search_session_id");
+    if (!sessionId) {
+      sessionId = Math.random().toString(36).substring(2, 15);
+      window.sessionStorage.setItem("search_session_id", sessionId);
+    }
+    return sessionId;
   }
-  return sessionId;
+
+  if (!fallbackSessionId) {
+    fallbackSessionId = Math.random().toString(36).substring(2, 15);
+  }
+
+  return fallbackSessionId;
 };

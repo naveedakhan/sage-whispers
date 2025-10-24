@@ -190,6 +190,7 @@ export type Database = {
           instruction_id: number
           text: string
           source_id: number
+          author_name: string | null
           tags: string[]
           categories: string[]
         }[]
@@ -260,11 +261,13 @@ export type Database = {
           tag_filters?: string[]
           category_filters?: string[]
           result_limit?: number
+          result_offset?: number
         }
         Returns: {
           instruction_id: number
           text: string
           source_id: number
+          author_name: string | null
           tags: string[]
           categories: string[]
         }[]

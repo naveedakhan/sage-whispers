@@ -17,7 +17,11 @@ interface InstructionCardProps {
 
 export const InstructionCard = ({ instruction }: InstructionCardProps) => {
   const shareText = `"${instruction.text}"${instruction.authors ? ` — ${instruction.authors.name}` : ''}`;
-  const shareUrl = `${window.location.origin}?instruction=${instruction.id}`;
+  const origin =
+    typeof window !== "undefined" && window.location
+      ? window.location.origin
+      : "https://www.daily-wisdom.com";
+  const shareUrl = `${origin}?instruction=${instruction.id}`;
 
   return (
     <Card className="transition-all duration-200 hover:shadow-lg hover:shadow-primary/5 border-primary/10 hover:border-primary/20">
