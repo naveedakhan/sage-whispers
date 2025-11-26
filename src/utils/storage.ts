@@ -17,7 +17,7 @@ export const getCookie = (name: string): string | null => {
 };
 
 // LocalStorage utilities
-export const setLocalStorage = (key: string, value: any) => {
+export const setLocalStorage = (key: string, value: unknown) => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
@@ -25,10 +25,10 @@ export const setLocalStorage = (key: string, value: any) => {
   }
 };
 
-export const getLocalStorage = (key: string): any => {
+export const getLocalStorage = <T>(key: string): T | null => {
   try {
     const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : null;
+    return item ? (JSON.parse(item) as T) : null;
   } catch (error) {
     console.error('Error reading from localStorage:', error);
     return null;
@@ -36,13 +36,13 @@ export const getLocalStorage = (key: string): any => {
 };
 
 // Debounce utility
-export const debounce = <T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): ((...args: Parameters<T>) => void) => {
+export const debounce = <Args extends unknown[]>(
+  func: (...args: Args) => void,
+  wait: number,
+): ((...args: Args) => void) => {
   let timeout: NodeJS.Timeout;
-  
-  return (...args: Parameters<T>) => {
+
+  return (...args: Args) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
   };
