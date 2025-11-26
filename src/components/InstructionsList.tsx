@@ -33,6 +33,14 @@ type RawInstruction = {
   categories?: string[];
 };
 
+type FallbackInstructionRow = {
+  id: number;
+  text: string;
+  authors?: { name?: string | null } | null;
+  instruction_tags?: Array<{ tags?: { name?: string | null } | null }> | null;
+  instruction_categories?: Array<{ categories?: { name?: string | null } | null }> | null;
+};
+
 const escapeForILike = (value: string) =>
   value.replace(/[%_\\]/g, (match) => `\\${match}`);
 
@@ -266,19 +274,21 @@ export const InstructionsList = ({
         throw fallbackError;
       }
 
-      const normalized: RawInstruction[] = (fallbackData ?? []).map((row: any) => ({
-        instruction_id: row.id,
-        text: row.text,
-        author_name: row.authors?.name ?? null,
-        tags:
-          (row.instruction_tags ?? [])
-            .map((relation: any) => relation?.tags?.name)
-            .filter(Boolean) ?? [],
-        categories:
-          (row.instruction_categories ?? [])
-            .map((relation: any) => relation?.categories?.name)
-            .filter(Boolean) ?? [],
-      }));
+      const normalized: RawInstruction[] = (fallbackData ?? []).map(
+        (row: FallbackInstructionRow) => ({
+          instruction_id: row.id,
+          text: row.text,
+          author_name: row.authors?.name ?? null,
+          tags:
+            (row.instruction_tags ?? [])
+              .map((relation) => relation?.tags?.name)
+              .filter((tagName): tagName is string => Boolean(tagName)) ?? [],
+          categories:
+            (row.instruction_categories ?? [])
+              .map((relation) => relation?.categories?.name)
+              .filter((categoryName): categoryName is string => Boolean(categoryName)) ?? [],
+        }),
+      );
 
       const lowerTagNames = tagNames.map(name => name.toLowerCase());
       const lowerCategoryNames = categoryNames.map(name => name.toLowerCase());

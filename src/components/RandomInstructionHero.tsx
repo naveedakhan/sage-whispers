@@ -90,7 +90,7 @@ const historyReducer = (state: HistoryState, action: HistoryAction): HistoryStat
 };
 
 // In-memory fallback storage when localStorage fails
-let memoryStorage: { [key: string]: unknown } = {};
+const memoryStorage: { [key: string]: unknown } = {};
 let storageAvailable = true;
 
 // Safe storage wrappers with fallback

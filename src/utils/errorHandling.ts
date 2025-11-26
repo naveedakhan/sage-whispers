@@ -3,7 +3,7 @@
 export interface AppError {
   message: string;
   code?: string;
-  details?: any;
+  details?: unknown;
 }
 
 export const createSafeError = (error: unknown): AppError => {
@@ -41,34 +41,38 @@ export const createSafeError = (error: unknown): AppError => {
   };
 };
 
-export const handleSupabaseError = (error: any): AppError => {
+export const handleSupabaseError = (error: unknown): AppError => {
   // Handle specific Supabase error types
-  if (error?.code === 'PGRST116') {
-    return {
-      message: "No data found",
-      code: "NOT_FOUND"
-    };
+  if (typeof error === 'object' && error !== null && 'code' in error) {
+    const supabaseError = error as { code?: string; message?: string };
+
+    if (supabaseError.code === 'PGRST116') {
+      return {
+        message: "No data found",
+        code: "NOT_FOUND"
+      };
+    }
+
+    if (supabaseError.code === 'PGRST301') {
+      return {
+        message: "Access denied",
+        code: "FORBIDDEN"
+      };
+    }
+
+    if (supabaseError.message?.includes('rate limit')) {
+      return {
+        message: "Too many requests. Please try again later.",
+        code: "RATE_LIMITED"
+      };
+    }
   }
-  
-  if (error?.code === 'PGRST301') {
-    return {
-      message: "Access denied",
-      code: "FORBIDDEN"
-    };
-  }
-  
-  if (error?.message?.includes('rate limit')) {
-    return {
-      message: "Too many requests. Please try again later.",
-      code: "RATE_LIMITED"
-    };
-  }
-  
+
   // Default safe error
   return createSafeError(error);
 };
 
-export const logSecurityEvent = (eventType: string, details?: any) => {
+export const logSecurityEvent = (eventType: string, details?: unknown) => {
   // In a real application, this would send to a logging service
   console.warn(`Security Event [${eventType}]:`, details);
   

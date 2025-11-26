@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,37 +21,38 @@ export const SearchInput = ({ value, onChange, searchMode, onSearchModeChange, h
   const { toast } = useToast();
 
   // Debounced onChange function with security checks
-  const debouncedOnChange = useCallback(
-    debounce((searchValue: string) => {
-      // Check rate limiting
-      const rateLimitKey = createRateLimitKey();
-      if (searchRateLimiter.isRateLimited(rateLimitKey)) {
-        const remaining = searchRateLimiter.getRemainingRequests(rateLimitKey);
-        toast({
-          title: "Rate limit exceeded",
-          description: `Please wait before searching again. ${remaining} requests remaining.`,
-          variant: "destructive",
-        });
-        return;
-      }
+  const debouncedOnChange = useMemo(
+    () =>
+      debounce((searchValue: string) => {
+        // Check rate limiting
+        const rateLimitKey = createRateLimitKey();
+        if (searchRateLimiter.isRateLimited(rateLimitKey)) {
+          const remaining = searchRateLimiter.getRemainingRequests(rateLimitKey);
+          toast({
+            title: "Rate limit exceeded",
+            description: `Please wait before searching again. ${remaining} requests remaining.`,
+            variant: "destructive",
+          });
+          return;
+        }
 
-      // Validate and sanitize input
-      const validation = validateSearchInput(searchValue);
-      if (!validation.isValid) {
-        setError(validation.error || "Invalid search term");
-        toast({
-          title: "Invalid search",
-          description: validation.error,
-          variant: "destructive",
-        });
-        return;
-      }
+        // Validate and sanitize input
+        const validation = validateSearchInput(searchValue);
+        if (!validation.isValid) {
+          setError(validation.error || "Invalid search term");
+          toast({
+            title: "Invalid search",
+            description: validation.error,
+            variant: "destructive",
+          });
+          return;
+        }
 
-      setError(null);
-      const sanitizedValue = sanitizeInput(searchValue);
-      onChange(sanitizedValue);
-    }, 300),
-    [onChange, toast]
+        setError(null);
+        const sanitizedValue = sanitizeInput(searchValue);
+        onChange(sanitizedValue);
+      }, 300),
+    [onChange, toast],
   );
 
   // Update local value when prop value changes
